@@ -551,9 +551,16 @@ class Client(requests.Session):
         return self._result(response, json=True)
 
     def logs(self, container, stdout=True, stderr=True, stream=False):
-        return self.container_output(container, stdout=stdout, stderr=stderr, stream=stream, logs=True)
+        return self.container_output(
+            container,
+            stdout=stdout,
+            stderr=stderr,
+            stream=stream,
+            logs=True
+        )
 
-    def container_output(self, container, stdout=True, stderr=True, stream=False, logs=False):
+    def container_output(self, container, stdout=True, stderr=True,
+                         stream=False, logs=False):
         if isinstance(container, dict):
             container = container.get('Id')
         params = {
