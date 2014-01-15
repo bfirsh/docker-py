@@ -143,7 +143,7 @@ Identical to the `docker logs` command. The `stream` parameter makes the
 retrieve log output as it happens.
 
 ```python
-c.container_output(container, stdout=True, stderr=True, stream=False, logs=False)
+c.attach(container, stdout=True, stderr=True, stream=False, logs=False)
 ```
 
 The `logs` function is a wrapper around this one, which you can use
