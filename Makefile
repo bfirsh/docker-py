@@ -1,3 +1,5 @@
+HOST_TMPDIR=test -n "$(TMPDIR)" && echo $(TMPDIR) || echo /tmp
+
 .PHONY: all
 all: test
 
@@ -25,6 +27,14 @@ build-dind-certs:
 .PHONY: test
 test: flake8 unit-test unit-test-py3 integration-dind integration-dind-ssl
 
+.PHONY: build-pypy
+build-pypy:
+	docker build -t docker-pypy -f Dockerfile-pypy .
+
+.PHONY: build-pypy3
+build-pypy3:
+	docker build -t docker-pypy3 -f Dockerfile-pypy3 .
+
 .PHONY: unit-test
 unit-test: build
 	docker run --rm docker-py py.test tests/unit
@@ -32,6 +42,14 @@ unit-test: build
 .PHONY: unit-test-py3
 unit-test-py3: build-py3
 	docker run --rm docker-py3 py.test tests/unit
+
+.PHONY: unit-test-pypy
+unit-test-pypy: build-pypy
+	docker run docker-pypy py.test tests/unit
+
+.PHONY: unit-test-pypy3
+unit-test-pypy3: build-pypy3
+	docker run docker-pypy3 py.test tests/unit
 
 .PHONY: integration-test
 integration-test: build
@@ -79,3 +97,11 @@ docs: build-docs
 .PHONY: shell
 shell: build
 	docker run -it -v /var/run/docker.sock:/var/run/docker.sock docker-py python
+
+.PHONY: integration-test-pypy
+integration-test-pypy: build-pypy
+	docker run -v `$(HOST_TMPDIR)`:/tmp -v /var/run/docker.sock:/var/run/docker.sock docker-pypy py.test -rxs tests/integration_test.py
+
+.PHONY: integration-test-pypy3
+integration-test-pypy3: build-pypy3
+	docker run -v `$(HOST_TMPDIR)`:/tmp -v /var/run/docker.sock:/var/run/docker.sock docker-pypy3 py.test -rxs tests/integration_test.py
