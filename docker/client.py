@@ -43,6 +43,7 @@ class Client(
         api.DaemonApiMixin,
         api.ExecApiMixin,
         api.ImageApiMixin,
+        api.ServiceApiMixin,
         api.VolumeApiMixin,
         api.NetworkApiMixin):
     def __init__(self, base_url=None, version=None,

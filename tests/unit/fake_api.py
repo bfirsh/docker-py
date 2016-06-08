@@ -445,6 +445,88 @@ def fake_remove_volume():
 def post_fake_update_container():
     return 200, {'Warnings': []}
 
+def get_fake_service_list():
+    return 200, [
+        {
+            "ID": "9ms8oyf7rvou0diazdf1lyv5o",
+            "Version": {
+                "Index": 1278
+            },
+            "CreatedAt": "2016-06-06T23:46:44.513147749Z",
+            "UpdatedAt": "2016-06-06T23:46:44.520408638Z",
+            "Spec": {
+                "Name": "helloworld",
+                "ContainerSpec": {
+                    "Image": "alpine",
+                    "Command": [
+                        "ping",
+                        "docker.com"
+                    ],
+                    "Resources": {
+                        "Limits": {},
+                        "Reservations": {}
+                    }
+                },
+                "Mode": {
+                    "Replicated": {
+                        "Instances": 1
+                    }
+                },
+                "RestartPolicy": {},
+                "Placement": {},
+                "UpdateConfig": {
+                    "Parallelism": 1
+                },
+                "EndpointSpec": {}
+            },
+            "Endpoint": {
+                "Spec": {}
+            }
+        }
+    ]
+
+def get_fake_service():
+    return 200, {
+        "ID": "9ms8oyf7rvou0diazdf1lyv5o",
+        "Version": {
+            "Index": 1278
+        },
+        "CreatedAt": "2016-06-06T23:46:44.513147749Z",
+        "UpdatedAt": "2016-06-06T23:46:44.520408638Z",
+        "Spec": {
+            "Name": "helloworld",
+            "ContainerSpec": {
+                "Image": "alpine",
+                "Command": [
+                    "ping",
+                    "docker.com"
+                ],
+                "Resources": {
+                    "Limits": {},
+                    "Reservations": {}
+                }
+            },
+            "Mode": {
+                "Replicated": {
+                    "Instances": 1
+                }
+            },
+            "RestartPolicy": {},
+            "Placement": {},
+            "UpdateConfig": {
+                "Parallelism": 1
+            },
+            "EndpointSpec": {}
+        },
+        "Endpoint": {
+            "Spec": {}
+        }
+    }
+
+def post_fake_service():
+    return 201, {
+        "ID": "9ms8oyf7rvou0diazdf1lyv5o"
+    }
 
 # Maps real api url to fake response callback
 prefix = 'http+docker://localunixsocket'
@@ -546,4 +628,6 @@ fake_responses = {
         CURRENT_VERSION, prefix, FAKE_VOLUME_NAME
     ), 'DELETE'):
     fake_remove_volume,
+    ('{1}/{0}/services'.format(CURRENT_VERSION, prefix), 'GET'): get_fake_service_list,
+    ('{1}/{0}/services/create'.format(CURRENT_VERSION, prefix), 'POST'): post_fake_service,
 }
