@@ -18,6 +18,15 @@ class ContainerCollectionTest(unittest.TestCase):
         assert container.attrs['Config']['Image'] == "alpine"
         assert container.attrs['Config']['Cmd'] == ['sleep', '300']
 
+    def test_run_with_error(self):
+        client = docker.from_env()
+        with self.assertRaises(docker.errors.ContainerError) as cm:
+            client.containers.run("alpine", "cat /test")
+        assert cm.exception.exit_status == 1
+        assert "cat /test" in str(cm.exception)
+        assert "alpine" in str(cm.exception)
+        assert "No such file or directory" in str(cm.exception)
+
     def test_get(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 300", detach=True)
