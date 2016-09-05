@@ -38,6 +38,14 @@ class APIError(requests.exceptions.HTTPError):
     def is_server_error(self):
         return 500 <= self.response.status_code < 600
 
+    def is_image_not_found_error(self):
+        """
+        Returns whether this error is an image not found error.
+        """
+        return (self.response.status_code == 404 and
+                self.explanation and
+                'No such image' in str(self.explanation))
+
 
 class DockerException(Exception):
     pass
@@ -76,3 +84,18 @@ class TLSParameterError(DockerException):
 
 class NullResource(DockerException, ValueError):
     pass
+
+
+class ContainerError(Exception):
+    """
+    Represents a container that has exited with a non-zero exit code.
+    """
+    def __init__(self, container, exit_status, command, image, stderr):
+        self.container = container
+        self.exit_status = exit_status
+        self.command = command
+        self.image = image
+        self.stderr = stderr
+        msg = ("Command '{}' in image '{}' returned non-zero exit status {}: "
+               "{}").format(command, image, exit_status, stderr)
+        super(ContainerError, self).__init__(msg)

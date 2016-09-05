@@ -1,0 +1,116 @@
+from docker.errors import APIError
+from ..errors import ContainerError
+from .resource import Collection, Model
+
+
+class Container(Model):
+
+    @property
+    def status(self):
+        """
+        Returns the status of the container. For example, `running`, or
+        `exited`.
+        """
+        return self.attrs['State']['Status']
+
+    def attach(self, *args, **kwargs):
+        return self.client.api.attach(self.id, *args, **kwargs)
+
+    def commit(self, *args, **kwargs):
+        resp = self.client.api.commit(self.id, *args, **kwargs)
+        return self.client.images.get(resp['Id'])
+
+    def diff(self, *args, **kwargs):
+        return self.client.api.diff(self.id, *args, **kwargs)
+
+    def export(self, *args, **kwargs):
+        return self.client.api.export(self.id, *args, **kwargs)
+
+    def get_archive(self, *args, **kwargs):
+        return self.client.api.get_archive(self.id, *args, **kwargs)
+
+    def kill(self, *args, **kwargs):
+        return self.client.api.kill(self.id, *args, **kwargs)
+
+    def logs(self, *args, **kwargs):
+        return self.client.api.logs(self.id, *args, **kwargs)
+
+    def pause(self, *args, **kwargs):
+        return self.client.api.pause(self.id, *args, **kwargs)
+
+    def put_archive(self, *args, **kwargs):
+        return self.client.api.put_archive(self.id, *args, **kwargs)
+
+    def remove(self, *args, **kwargs):
+        return self.client.api.remove_container(self.id, *args, **kwargs)
+
+    def rename(self, *args, **kwargs):
+        return self.client.api.rename(self.id, *args, **kwargs)
+
+    def resize(self, *args, **kwargs):
+        return self.client.api.resize(self.id, *args, **kwargs)
+
+    def restart(self, *args, **kwargs):
+        return self.client.api.restart(self.id, *args, **kwargs)
+
+    def start(self, *args, **kwargs):
+        return self.client.api.start(self.id, *args, **kwargs)
+
+    def stats(self, *args, **kwargs):
+        return self.client.api.stats(self.id, *args, **kwargs)
+
+    def stop(self, *args, **kwargs):
+        return self.client.api.stop(self.id, *args, **kwargs)
+
+    def top(self, *args, **kwargs):
+        return self.client.api.top(self.id, *args, **kwargs)
+
+    def update(self, *args, **kwargs):
+        return self.client.api.update(self.id, *args, **kwargs)
+
+    def wait(self, *args, **kwargs):
+        return self.client.api.wait(self.id, *args, **kwargs)
+
+
+class ContainerCollection(Collection):
+    model = Container
+
+    def run(self, image, command=None, stdout=True, stderr=False, **kwargs):
+        detach = kwargs.get("detach", False)
+        try:
+            container = self.create(image, command, **kwargs)
+        except APIError as e:
+            if e.is_image_not_found_error():
+                self.client.images.pull(image)
+                container = self.create(image, command, **kwargs)
+            else:
+                raise
+
+        container.start()
+
+        if detach:
+            return container
+
+        exit_status = container.wait()
+        if exit_status != 0:
+            raise ContainerError(
+                container,
+                exit_status,
+                command,
+                image,
+                container.logs(stdout=False, stderr=True)
+            )
+        return container.logs(stdout=stdout, stderr=stderr)
+
+    def create(self, *args, **kwargs):
+        resp = self.client.api.create_container(*args, **kwargs)
+        return self.get(resp['Id'])
+
+    def get(self, cid):
+        return self.prepare_model(self.client.api.inspect_container(cid))
+
+    def list(self, *args, **kwargs):
+        return [
+            self.get(r['Id'])
+            for r in self.client.api.containers(*args, **kwargs)
+        ]
