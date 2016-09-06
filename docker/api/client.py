@@ -23,16 +23,12 @@ from ..constants import (DEFAULT_TIMEOUT_SECONDS, DEFAULT_USER_AGENT,
 from ..errors import DockerException, APIError, TLSParameterError, NotFound
 from ..tls import TLSConfig
 from ..transport import UnixAdapter
-from ..utils import utils, check_resource, update_headers, kwargs_from_env
+from ..utils import utils, check_resource, update_headers
 from ..utils.socket import frames_iter
 try:
     from ..transport import NpipeAdapter
 except ImportError:
     pass
-
-
-def from_env(**kwargs):
-    return APIClient.from_env(**kwargs)
 
 
 class APIClient(
@@ -118,13 +114,6 @@ class APIClient(
                     type(version).__name__
                 )
             )
-
-    @classmethod
-    def from_env(cls, **kwargs):
-        timeout = kwargs.pop('timeout', None)
-        version = kwargs.pop('version', None)
-        return cls(timeout=timeout, version=version,
-                   **kwargs_from_env(**kwargs))
 
     def _retrieve_server_version(self):
         try:
