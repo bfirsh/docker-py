@@ -46,6 +46,17 @@ def get_fake_info():
     return status_code, response
 
 
+def post_fake_auth():
+    status_code = 200
+    response = {'Status': 'Login Succeeded',
+                'IdentityToken': '9cbaf023786cd7'}
+    return status_code, response
+
+
+def get_fake_ping():
+    return 200, "OK"
+
+
 def get_fake_search():
     status_code = 200
     response = [{'Name': 'busybox', 'Description': 'Fake Description'}]
@@ -423,6 +434,10 @@ fake_responses = {
     get_fake_version,
     '{1}/{0}/info'.format(CURRENT_VERSION, prefix):
     get_fake_info,
+    '{1}/{0}/auth'.format(CURRENT_VERSION, prefix):
+    post_fake_auth,
+    '{1}/{0}/_ping'.format(CURRENT_VERSION, prefix):
+    get_fake_ping,
     '{1}/{0}/images/search'.format(CURRENT_VERSION, prefix):
     get_fake_search,
     '{1}/{0}/images/json'.format(CURRENT_VERSION, prefix):
