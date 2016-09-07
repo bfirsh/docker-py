@@ -137,6 +137,7 @@ def get_fake_inspect_container(tty=False):
         'ID': FAKE_CONTAINER_ID,
         'Image': 'busybox:latest',
         "State": {
+            "Status": "running",
             "Running": True,
             "Pid": 0,
             "ExitCode": 0,
@@ -151,11 +152,11 @@ def get_fake_inspect_container(tty=False):
 def get_fake_inspect_image():
     status_code = 200
     response = {
-        'id': FAKE_IMAGE_ID,
-        'parent': "27cf784147099545",
-        'created': "2013-03-23T22:24:18.818426-07:00",
-        'container': FAKE_CONTAINER_ID,
-        'container_config':
+        'Id': FAKE_IMAGE_ID,
+        'Parent': "27cf784147099545",
+        'Created': "2013-03-23T22:24:18.818426-07:00",
+        'Container': FAKE_CONTAINER_ID,
+        'ContainerConfig':
         {
             "Hostname": "",
             "User": "",

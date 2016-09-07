@@ -10,7 +10,9 @@ class Image(Model):
         """
         Returns the "sha256:" prefix plus 10 characters of the ID
         """
-        return self.id[:17]
+        if self.id.startswith('sha256:'):
+            return self.id[:17]
+        return self.id[:10]
 
     @property
     def name(self):
@@ -19,7 +21,7 @@ class Image(Model):
     @property
     def tags(self):
         return [
-            tag for tag in self.attrs['RepoTags']
+            tag for tag in self.attrs.get('RepoTags', [])
             if tag != '<none>:<none>'
         ]
 
@@ -56,11 +58,9 @@ class ImageCollection(Collection):
         self.client.api.pull(name, **kwargs)
         return self.get(name)
 
-    def list(self, *args, **kwargs):
-        return [
-            self.prepare_model(r)
-            for r in self.client.api.images(*args, **kwargs)
-        ]
+    def list(self, name=None, all=False, filters=None):
+        resp = self.client.api.images(name=name, all=all, filters=filters)
+        return [self.prepare_model(r) for r in resp]
 
     def remove(self, *args, **kwargs):
         """

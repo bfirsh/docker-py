@@ -85,6 +85,3 @@ class ContainerTest(unittest.TestCase):
         container.kill()
         container = client.containers.get(container.id)
         assert container.status == 'exited'
-
-    def test_status(self):
-        pass  # TODO
