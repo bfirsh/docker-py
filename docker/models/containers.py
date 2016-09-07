@@ -109,8 +109,8 @@ class ContainerCollection(Collection):
     def get(self, cid):
         return self.prepare_model(self.client.api.inspect_container(cid))
 
-    def list(self, *args, **kwargs):
-        return [
-            self.get(r['Id'])
-            for r in self.client.api.containers(*args, **kwargs)
-        ]
+    def list(self, all=False, before=None, filters=None, limit=-1, since=None):
+        resp = self.client.api.containers(all=all, before=before,
+                                          filters=filters, limit=limit,
+                                          since=since)
+        return [self.get(r['Id']) for r in resp]
