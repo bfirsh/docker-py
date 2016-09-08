@@ -226,6 +226,12 @@ class ContainerTest(unittest.TestCase):
         container.top()
         client.api.top.assert_called_with(FAKE_CONTAINER_ID)
 
+    def test_unpause(self):
+        client = make_fake_client()
+        container = client.containers.get(FAKE_CONTAINER_ID)
+        container.unpause()
+        client.api.unpause.assert_called_with(FAKE_CONTAINER_ID)
+
     def test_update(self):
         client = make_fake_client()
         container = client.containers.get(FAKE_CONTAINER_ID)

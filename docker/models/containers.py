@@ -65,6 +65,9 @@ class Container(Model):
     def top(self, *args, **kwargs):
         return self.client.api.top(self.id, *args, **kwargs)
 
+    def unpause(self, *args, **kwargs):
+        return self.client.api.unpause(self.id, *args, **kwargs)
+
     def update(self, *args, **kwargs):
         return self.client.api.update(self.id, *args, **kwargs)
 
