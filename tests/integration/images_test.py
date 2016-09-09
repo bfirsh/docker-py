@@ -1,12 +1,28 @@
+import io
 import unittest
 
 import docker
 
 
-class ImageTest(unittest.TestCase):
+class ImageCollectionTest(unittest.TestCase):
 
     def test_build(self):
-        pass
+        client = docker.from_env()
+        image = client.images.build(fileobj=io.BytesIO(
+            "FROM alpine\n"
+            "CMD echo hello world".encode('ascii')
+        ))
+        assert client.containers.run(image) == b"hello world\n"
+
+    def test_build_with_error(self):
+        client = docker.from_env()
+        with self.assertRaises(docker.errors.BuildError) as cm:
+            client.images.build(fileobj=io.BytesIO(
+                "FROM alpine\n"
+                "NOTADOCKERFILECOMMAND".encode('ascii')
+            ))
+        assert str(cm.exception) == ("Unknown instruction: "
+                                     "NOTADOCKERFILECOMMAND")
 
     def test_list(self):
         client = docker.from_env()

@@ -99,3 +99,12 @@ class ContainerError(Exception):
         msg = ("Command '{}' in image '{}' returned non-zero exit status {}: "
                "{}").format(command, image, exit_status, stderr)
         super(ContainerError, self).__init__(msg)
+
+
+class StreamParseError(RuntimeError):
+    def __init__(self, reason):
+        self.msg = reason
+
+
+class BuildError(Exception):
+    pass

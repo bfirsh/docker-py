@@ -1,3 +1,9 @@
+import re
+
+import six
+
+from ..errors import BuildError
+from ..utils.json_stream import json_stream
 from .resource import Collection, Model
 
 
@@ -42,8 +48,21 @@ class ImageCollection(Collection):
         """
         Build an image and return it.
         """
-        image_id = self.client.api.build(*args, **kwargs)
-        return self.get(image_id)
+        resp = self.client.api.build(*args, **kwargs)
+        if isinstance(resp, six.string_types):
+            return self.get(resp)
+        events = list(json_stream(resp))
+        if not events:
+            return BuildError('Unknown')
+        event = events[-1]
+        if 'stream' in event:
+            match = re.search(r'Successfully built ([0-9a-f]+)',
+                              event.get('stream', ''))
+            if match:
+                image_id = match.group(1)
+                return self.get(image_id)
+
+        raise BuildError(event.get('error') or event)
 
     def get(self, name):
         """
