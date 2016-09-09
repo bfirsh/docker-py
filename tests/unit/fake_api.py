@@ -136,6 +136,7 @@ def get_fake_inspect_container(tty=False):
         'Config': {'Privileged': True, 'Tty': tty},
         'ID': FAKE_CONTAINER_ID,
         'Image': 'busybox:latest',
+        'Name': 'foobar',
         "State": {
             "Status": "running",
             "Running": True,

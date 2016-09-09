@@ -6,6 +6,14 @@ from .resource import Collection, Model
 class Container(Model):
 
     @property
+    def name(self):
+        """
+        Returns the name of the container.
+        """
+        if self.attrs.get('Name') is not None:
+            return self.attrs['Name'].lstrip('/')
+
+    @property
     def status(self):
         """
         Returns the status of the container. For example, `running`, or

@@ -117,6 +117,11 @@ class ContainerCollectionTest(unittest.TestCase):
 
 
 class ContainerTest(unittest.TestCase):
+    def test_name(self):
+        client = make_fake_client()
+        container = client.containers.get(FAKE_CONTAINER_ID)
+        assert container.name == 'foobar'
+
     def test_status(self):
         client = make_fake_client()
         container = client.containers.get(FAKE_CONTAINER_ID)
