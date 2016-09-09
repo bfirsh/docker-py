@@ -6,6 +6,7 @@ import docker
 class ClientTest(unittest.TestCase):
 
     def test_events(self):
+        # TODO
         pass
 
     def test_info(self):
@@ -15,6 +16,7 @@ class ClientTest(unittest.TestCase):
         assert 'Name' in info
 
     def test_login(self):
+        # TODO
         pass
 
     def test_ping(self):
