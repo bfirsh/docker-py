@@ -12,6 +12,10 @@ class Image(Model):
         return "<%s: %s>" % (self.__class__.__name__, self.name)
 
     @property
+    def name(self):
+        return self.tags[0] if self.tags else self.short_id
+
+    @property
     def short_id(self):
         """
         Returns the "sha256:" prefix plus 10 characters of the ID
@@ -19,10 +23,6 @@ class Image(Model):
         if self.id.startswith('sha256:'):
             return self.id[:17]
         return self.id[:10]
-
-    @property
-    def name(self):
-        return self.tags[0] if self.tags else self.short_id
 
     @property
     def tags(self):
@@ -70,6 +70,13 @@ class ImageCollection(Collection):
         """
         return self.prepare_model(self.client.api.inspect_image(name))
 
+    def list(self, name=None, all=False, filters=None):
+        resp = self.client.api.images(name=name, all=all, filters=filters)
+        return [self.prepare_model(r) for r in resp]
+
+    def load(self, data):
+        return self.client.api.load_image(data)
+
     def pull(self, name, **kwargs):
         """
         Pull an image of the given name and return it.
@@ -77,12 +84,11 @@ class ImageCollection(Collection):
         self.client.api.pull(name, **kwargs)
         return self.get(name)
 
-    def list(self, name=None, all=False, filters=None):
-        resp = self.client.api.images(name=name, all=all, filters=filters)
-        return [self.prepare_model(r) for r in resp]
-
     def remove(self, *args, **kwargs):
         """
         Remove an image.
         """
         self.client.api.remove_image(*args, **kwargs)
+
+    def search(self, *args, **kwargs):
+        return self.client.api.search(*args, **kwargs)

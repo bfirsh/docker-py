@@ -21,14 +21,6 @@ class ImageCollectionTest(unittest.TestCase):
         assert isinstance(image, Image)
         assert image.id == FAKE_IMAGE_ID
 
-    def test_pull(self):
-        client = make_fake_client()
-        image = client.images.pull('test_image')
-        client.api.pull.assert_called_with('test_image')
-        client.api.inspect_image.assert_called_with('test_image')
-        assert isinstance(image, Image)
-        assert image.id == FAKE_IMAGE_ID
-
     def test_list(self):
         client = make_fake_client()
         images = client.images.list(all=True)
@@ -37,10 +29,28 @@ class ImageCollectionTest(unittest.TestCase):
         assert isinstance(images[0], Image)
         assert images[0].id == FAKE_IMAGE_ID
 
+    def test_load(self):
+        client = make_fake_client()
+        client.images.load('byte stream')
+        client.api.load_image.assert_called_with('byte stream')
+
+    def test_pull(self):
+        client = make_fake_client()
+        image = client.images.pull('test_image')
+        client.api.pull.assert_called_with('test_image')
+        client.api.inspect_image.assert_called_with('test_image')
+        assert isinstance(image, Image)
+        assert image.id == FAKE_IMAGE_ID
+
     def test_remove(self):
         client = make_fake_client()
         client.images.remove('test_image')
         client.api.remove_image.assert_called_with('test_image')
+
+    def test_search(self):
+        client = make_fake_client()
+        client.images.search('test')
+        client.api.search.assert_called_with('test')
 
 
 class ImageTest(unittest.TestCase):

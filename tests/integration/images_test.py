@@ -35,10 +35,17 @@ class ImageCollectionTest(unittest.TestCase):
         assert image.id in get_ids(client.images.list('alpine'))
         assert image.id in get_ids(client.images.list('alpine:latest'))
 
+    def test_load(self):
+        # TODO
+        pass
+
     def test_pull(self):
         client = docker.from_env()
         image = client.images.pull('alpine:latest')
         assert 'alpine:latest' in image.attrs['RepoTags']
+
+
+class ImageTest(unittest.TestCase):
 
     def test_tag_and_remove(self):
         repo = 'dockersdk.tests.images.test_tag'
