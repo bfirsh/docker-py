@@ -1,5 +1,6 @@
 from docker.errors import APIError
 from ..errors import ContainerError
+from .images import Image
 from .resource import Collection, Model
 
 
@@ -87,6 +88,8 @@ class ContainerCollection(Collection):
     model = Container
 
     def run(self, image, command=None, stdout=True, stderr=False, **kwargs):
+        if isinstance(image, Image):
+            image = image.id
         detach = kwargs.get("detach", False)
         try:
             container = self.create(image, command, **kwargs)
@@ -113,8 +116,10 @@ class ContainerCollection(Collection):
             )
         return container.logs(stdout=stdout, stderr=stderr)
 
-    def create(self, *args, **kwargs):
-        resp = self.client.api.create_container(*args, **kwargs)
+    def create(self, image, *args, **kwargs):
+        if isinstance(image, Image):
+            image = image.id
+        resp = self.client.api.create_container(image, *args, **kwargs)
         return self.get(resp['Id'])
 
     def get(self, cid):

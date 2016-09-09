@@ -77,6 +77,12 @@ class ContainerCollectionTest(unittest.TestCase):
         assert cm.exception.exit_status == 1
         assert "some error" in str(cm.exception)
 
+    def test_run_with_image_object(self):
+        client = make_fake_client()
+        image = client.images.get(FAKE_IMAGE_ID)
+        client.containers.run(image)
+        client.api.create_container.assert_called_with(image.id, None)
+
     def test_create(self):
         client = make_fake_client()
         container = client.containers.create(
@@ -92,6 +98,12 @@ class ContainerCollectionTest(unittest.TestCase):
             environment={'FOO': 'BAR'}
         )
         client.api.inspect_container.assert_called_with(FAKE_CONTAINER_ID)
+
+    def test_create_with_image_object(self):
+        client = make_fake_client()
+        image = client.images.get(FAKE_IMAGE_ID)
+        client.containers.create(image)
+        client.api.create_container.assert_called_with(image.id)
 
     def test_get(self):
         client = make_fake_client()
