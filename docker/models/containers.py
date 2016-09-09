@@ -77,7 +77,7 @@ class Container(Model):
         return self.client.api.unpause(self.id, *args, **kwargs)
 
     def update(self, *args, **kwargs):
-        return self.client.api.update(self.id, *args, **kwargs)
+        return self.client.api.update_container(self.id, *args, **kwargs)
 
     def wait(self, *args, **kwargs):
         return self.client.api.wait(self.id, *args, **kwargs)

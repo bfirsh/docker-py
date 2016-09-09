@@ -241,7 +241,8 @@ class ContainerTest(unittest.TestCase):
         client = make_fake_client()
         container = client.containers.get(FAKE_CONTAINER_ID)
         container.update(cpu_shares=2)
-        client.api.update.assert_called_with(FAKE_CONTAINER_ID, cpu_shares=2)
+        client.api.update_container.assert_called_with(FAKE_CONTAINER_ID,
+                                                       cpu_shares=2)
 
     def test_wait(self):
         client = make_fake_client()
