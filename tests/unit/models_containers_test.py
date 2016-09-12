@@ -3,7 +3,7 @@ from docker.models.containers import Container
 from docker.models.images import Image
 import unittest
 
-from .fake_api import FAKE_CONTAINER_ID, FAKE_IMAGE_ID
+from .fake_api import FAKE_CONTAINER_ID, FAKE_IMAGE_ID, FAKE_EXEC_ID
 from .fake_api_client import make_fake_client
 
 
@@ -158,6 +158,18 @@ class ContainerTest(unittest.TestCase):
         container = client.containers.get(FAKE_CONTAINER_ID)
         container.diff()
         client.api.diff.assert_called_with(FAKE_CONTAINER_ID)
+
+    def test_exec_run(self):
+        client = make_fake_client()
+        container = client.containers.get(FAKE_CONTAINER_ID)
+        container.exec_run("echo hello world", privileged=True, stream=True)
+        client.api.exec_create.assert_called_with(
+            FAKE_CONTAINER_ID, "echo hello world", stdout=True, stderr=True,
+            stdin=False, tty=False, privileged=True, user=''
+        )
+        client.api.exec_start.assert_called_with(
+            FAKE_EXEC_ID, detach=False, tty=False, stream=True, socket=False
+        )
 
     def test_export(self):
         client = make_fake_client()

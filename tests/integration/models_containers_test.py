@@ -73,6 +73,13 @@ class ContainerTest(unittest.TestCase):
         container.wait()
         assert container.diff() == [{'Path': '/test', 'Kind': 1}]
 
+    def test_exec_run(self):
+        client = docker.from_env()
+        container = client.containers.run(
+            "alpine", "sh -c 'echo \"hello\" > /test; sleep 60'", detach=True
+        )
+        assert container.exec_run("cat /test") == b"hello\n"
+
     def test_export(self):
         pass  # TODO
 

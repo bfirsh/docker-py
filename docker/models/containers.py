@@ -32,6 +32,17 @@ class Container(Model):
     def diff(self, *args, **kwargs):
         return self.client.api.diff(self.id, *args, **kwargs)
 
+    def exec_run(self, cmd, stdout=True, stderr=True, stdin=False, tty=False,
+                 privileged=False, user='', detach=False, stream=False,
+                 socket=False):
+        resp = self.client.api.exec_create(
+            self.id, cmd, stdout=stdout, stderr=stderr, stdin=stdin, tty=tty,
+            privileged=privileged, user=user
+        )
+        return self.client.api.exec_start(
+            resp['Id'], detach=detach, tty=tty, stream=stream, socket=socket
+        )
+
     def export(self, *args, **kwargs):
         return self.client.api.export(self.id, *args, **kwargs)
 
