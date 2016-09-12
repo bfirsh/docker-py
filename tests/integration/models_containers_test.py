@@ -90,10 +90,10 @@ class ContainerTest(unittest.TestCase):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 300", detach=True)
         while container.status != 'running':
-            container = client.containers.get(container.id)
+            container.reload()
         assert container.status == 'running'
         container.kill()
-        container = client.containers.get(container.id)
+        container.reload()
         assert container.status == 'exited'
 
     def test_logs(self):
@@ -107,10 +107,10 @@ class ContainerTest(unittest.TestCase):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 300", detach=True)
         container.pause()
-        container = client.containers.get(container.id)
+        container.reload()
         assert container.status == "paused"
         container.unpause()
-        container = client.containers.get(container.id)
+        container.reload()
         assert container.status == "running"
 
     def test_put_archive(self):
@@ -131,7 +131,7 @@ class ContainerTest(unittest.TestCase):
                                           detach=True)
         assert container.name == "test1"
         container.rename("test2")
-        container = client.containers.get(container.id)
+        container.reload()
         assert container.name == "test2"
         container.remove(force=True)
 
@@ -144,7 +144,7 @@ class ContainerTest(unittest.TestCase):
         container = client.containers.run("alpine", "sleep 100", detach=True)
         first_started_at = container.attrs['State']['StartedAt']
         container.restart()
-        container = client.containers.get(container.id)
+        container.reload()
         second_started_at = container.attrs['State']['StartedAt']
         assert first_started_at != second_started_at
 
@@ -153,7 +153,7 @@ class ContainerTest(unittest.TestCase):
         container = client.containers.create("alpine", "sleep 50", detach=True)
         assert container.status == "created"
         container.start()
-        container = client.containers.get(container.id)
+        container.reload()
         assert container.status == "running"
 
     def test_stats(self):
@@ -169,7 +169,7 @@ class ContainerTest(unittest.TestCase):
         container = client.containers.run("alpine", "sleep 100", detach=True)
         assert container.status in ("running", "created")
         container.stop()
-        container = client.containers.get(container.id)
+        container.reload()
         assert container.status == "exited"
 
     def test_top(self):
@@ -185,7 +185,7 @@ class ContainerTest(unittest.TestCase):
                                           host_config={'CpuShares': 2})
         assert container.attrs['HostConfig']['CpuShares'] == 2
         container.update(cpu_shares=3)
-        container = client.containers.get(container.id)
+        container.reload()
         assert container.attrs['HostConfig']['CpuShares'] == 3
 
     def test_wait(self):

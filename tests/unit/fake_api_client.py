@@ -1,3 +1,4 @@
+import copy
 import docker
 
 from . import fake_api
@@ -8,6 +9,17 @@ except ImportError:
     import mock
 
 
+class CopyReturnMagicMock(mock.MagicMock):
+    """
+    A MagicMock which deep copies every return value.
+    """
+    def _mock_call(self, *args, **kwargs):
+        ret = super(CopyReturnMagicMock, self)._mock_call(*args, **kwargs)
+        if isinstance(ret, (dict, list)):
+            ret = copy.deepcopy(ret)
+        return ret
+
+
 def make_fake_api_client():
     """
     Returns non-complete fake APIClient.
@@ -15,7 +27,7 @@ def make_fake_api_client():
     This returns most of the default cases correctly, but most arguments that
     change behaviour will not work.
     """
-    return mock.MagicMock(**{
+    return CopyReturnMagicMock(**{
         'build.return_value': fake_api.FAKE_IMAGE_ID,
         'commit.return_value': fake_api.post_fake_commit()[1],
         'containers.return_value': fake_api.get_fake_containers()[1],

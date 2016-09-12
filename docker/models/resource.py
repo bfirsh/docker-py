@@ -20,6 +20,14 @@ class Model(object):
     def short_id(self):
         return self.id[:10]
 
+    def reload(self):
+        """
+        Loads this object from the server again and update `attrs` with the
+        new data.
+        """
+        new_model = self.collection.get(self.id)
+        self.attrs = new_model.attrs
+
 
 class Collection(object):
     model = None
