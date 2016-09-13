@@ -1,5 +1,6 @@
 import os
 import os.path
+import random
 import tarfile
 import tempfile
 
@@ -47,3 +48,7 @@ def requires_api_version(version):
         ),
         reason="API version is too low (< {0})".format(version)
     )
+
+
+def random_name():
+    return u'dockerpy{}'.format(random.getrandbits(24))[:14]

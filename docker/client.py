@@ -1,6 +1,7 @@
 from .api.client import APIClient
 from .models.containers import ContainerCollection
 from .models.images import ImageCollection
+from .models.networks import NetworkCollection
 from .utils import kwargs_from_env
 
 
@@ -30,6 +31,10 @@ class Client(object):
     @property
     def images(self):
         return ImageCollection(client=self)
+
+    @property
+    def networks(self):
+        return NetworkCollection(client=self)
 
     # Top-level methods
     def events(self, *args, **kwargs):

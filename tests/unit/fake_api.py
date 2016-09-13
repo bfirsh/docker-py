@@ -6,6 +6,7 @@ CURRENT_VERSION = 'v{0}'.format(constants.DEFAULT_DOCKER_API_VERSION)
 FAKE_CONTAINER_ID = '3cc2351ab11b'
 FAKE_IMAGE_ID = 'e9aa60c60128'
 FAKE_EXEC_ID = 'd5d177f121dc'
+FAKE_NETWORK_ID = '33fb6a3462b8'
 FAKE_IMAGE_NAME = 'test_image'
 FAKE_TARBALL_PATH = '/path/to/tarball'
 FAKE_REPO_NAME = 'repo'
@@ -424,6 +425,61 @@ def post_fake_update_node():
     return 200, None
 
 
+def get_fake_network_list():
+    return 200, [{
+        "Name": "bridge",
+        "Id": FAKE_NETWORK_ID,
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": False,
+        "Internal": False,
+        "IPAM": {
+            "Driver": "default",
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16"
+                }
+            ]
+        },
+        "Containers": {
+            FAKE_CONTAINER_ID: {
+                "EndpointID": "ed2419a97c1d99",
+                "MacAddress": "02:42:ac:11:00:02",
+                "IPv4Address": "172.17.0.2/16",
+                "IPv6Address": ""
+            }
+        },
+        "Options": {
+            "com.docker.network.bridge.default_bridge": "true",
+            "com.docker.network.bridge.enable_icc": "true",
+            "com.docker.network.bridge.enable_ip_masquerade": "true",
+            "com.docker.network.bridge.host_binding_ipv4": "0.0.0.0",
+            "com.docker.network.bridge.name": "docker0",
+            "com.docker.network.driver.mtu": "1500"
+        }
+    }]
+
+
+def get_fake_network():
+    return 200, get_fake_network_list()[1][0]
+
+
+def post_fake_network():
+    return 201, {"Id": FAKE_NETWORK_ID, "Warnings": []}
+
+
+def delete_fake_network():
+    return 204, None
+
+
+def post_fake_network_connect():
+    return 200, None
+
+
+def post_fake_network_disconnect():
+    return 200, None
+
+
 # Maps real api url to fake response callback
 prefix = 'http+docker://localunixsocket'
 if constants.IS_WINDOWS_PLATFORM:
@@ -533,4 +589,24 @@ fake_responses = {
         CURRENT_VERSION, prefix, FAKE_NODE_ID
     ), 'POST'):
     post_fake_update_node,
+    ('{1}/{0}/networks'.format(CURRENT_VERSION, prefix), 'GET'):
+    get_fake_network_list,
+    ('{1}/{0}/networks/create'.format(CURRENT_VERSION, prefix), 'POST'):
+    post_fake_network,
+    ('{1}/{0}/networks/{2}'.format(
+        CURRENT_VERSION, prefix, FAKE_NETWORK_ID
+    ), 'GET'):
+    get_fake_network,
+    ('{1}/{0}/networks/{2}'.format(
+        CURRENT_VERSION, prefix, FAKE_NETWORK_ID
+    ), 'DELETE'):
+    delete_fake_network,
+    ('{1}/{0}/networks/{2}/connect'.format(
+        CURRENT_VERSION, prefix, FAKE_NETWORK_ID
+    ), 'POST'):
+    post_fake_network_connect,
+    ('{1}/{0}/networks/{2}/disconnect'.format(
+        CURRENT_VERSION, prefix, FAKE_NETWORK_ID
+    ), 'POST'):
+    post_fake_network_disconnect,
 }

@@ -12,6 +12,9 @@ class Model(object):
     def __repr__(self):
         return "<%s: %s>" % (self.__class__.__name__, self.short_id)
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and self.id == other.id
+
     @property
     def id(self):
         return self.attrs.get("Id")
