@@ -121,6 +121,7 @@ class ContainerTest(unittest.TestCase):
         client = docker.from_env()
         container = client.containers.run("alpine", "echo hello", detach=True)
         assert container.id in [c.id for c in client.containers.list(all=True)]
+        container.wait()
         container.remove()
         containers = client.containers.list(all=True)
         assert container.id not in [c.id for c in containers]
