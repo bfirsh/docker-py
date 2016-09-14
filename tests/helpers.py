@@ -51,4 +51,4 @@ def requires_api_version(version):
 
 
 def random_name():
-    return u'dockerpy{}'.format(random.getrandbits(24))[:14]
+    return u'dockerpytest_{0:x}'.format(random.getrandbits(64))
