@@ -1,5 +1,6 @@
 
 class Model(object):
+    id_attribute = 'Id'
 
     def __init__(self, attrs=None, url=None, client=None, collection=None):
         self.url = url
@@ -17,7 +18,7 @@ class Model(object):
 
     @property
     def id(self):
-        return self.attrs.get("Id")
+        return self.attrs.get(self.id_attribute)
 
     @property
     def short_id(self):
