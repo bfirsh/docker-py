@@ -48,9 +48,6 @@ class Collection(object):
     def create(self, attrs=None):
         raise NotImplementedError
 
-    def delete(self, model):
-        raise NotImplementedError
-
     def prepare_model(self, attrs):
         if isinstance(attrs, Model):
             attrs.client = self.client
