@@ -5,6 +5,7 @@ from .models.networks import NetworkCollection
 from .models.nodes import NodeCollection
 from .models.services import ServiceCollection
 from .models.swarm import Swarm
+from .models.volumes import VolumeCollection
 from .utils import kwargs_from_env
 
 
@@ -50,6 +51,10 @@ class Client(object):
     @property
     def swarm(self):
         return Swarm(client=self)
+
+    @property
+    def volumes(self):
+        return VolumeCollection(client=self)
 
     # Top-level methods
     def events(self, *args, **kwargs):
