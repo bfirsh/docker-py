@@ -4,10 +4,10 @@ from docker.utils import create_ipam_pool
 import pytest
 
 from ..helpers import random_name, requires_api_version
-from .base import BaseIntegrationTest
+from .base import BaseAPIIntegrationTest
 
 
-class TestNetworks(BaseIntegrationTest):
+class TestNetworks(BaseAPIIntegrationTest):
     def create_network(self, *args, **kwargs):
         net_name = random_name()
         net_id = self.client.create_network(net_name, *args, **kwargs)['Id']

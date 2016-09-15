@@ -11,10 +11,10 @@ import six
 
 from ..helpers import requires_api_version
 from .. import helpers
-from .base import BaseIntegrationTest, BUSYBOX
+from .base import BaseAPIIntegrationTest, BUSYBOX
 
 
-class ListContainersTest(BaseIntegrationTest):
+class ListContainersTest(BaseAPIIntegrationTest):
     def test_list_containers(self):
         res0 = self.client.containers(all=True)
         size = len(res0)
@@ -34,7 +34,7 @@ class ListContainersTest(BaseIntegrationTest):
         self.assertIn('Status', retrieved)
 
 
-class CreateContainerTest(BaseIntegrationTest):
+class CreateContainerTest(BaseAPIIntegrationTest):
 
     def test_create(self):
         res = self.client.create_container(BUSYBOX, 'true')
@@ -398,7 +398,7 @@ class CreateContainerTest(BaseIntegrationTest):
         assert config['HostConfig']['Tmpfs'] == tmpfs
 
 
-class VolumeBindTest(BaseIntegrationTest):
+class VolumeBindTest(BaseAPIIntegrationTest):
     def setUp(self):
         super(VolumeBindTest, self).setUp()
 
@@ -493,7 +493,7 @@ class VolumeBindTest(BaseIntegrationTest):
 
 
 @requires_api_version('1.20')
-class ArchiveTest(BaseIntegrationTest):
+class ArchiveTest(BaseAPIIntegrationTest):
     def test_get_file_archive_from_container(self):
         data = 'The Maid and the Pocket Watch of Blood'
         ctnr = self.client.create_container(
@@ -573,7 +573,7 @@ class ArchiveTest(BaseIntegrationTest):
         self.assertIn('bar/', results)
 
 
-class RenameContainerTest(BaseIntegrationTest):
+class RenameContainerTest(BaseAPIIntegrationTest):
     def test_rename_container(self):
         version = self.client.version()['Version']
         name = 'hong_meiling'
@@ -589,7 +589,7 @@ class RenameContainerTest(BaseIntegrationTest):
             self.assertEqual('/{0}'.format(name), inspect['Name'])
 
 
-class StartContainerTest(BaseIntegrationTest):
+class StartContainerTest(BaseAPIIntegrationTest):
     def test_start_container(self):
         res = self.client.create_container(BUSYBOX, 'true')
         self.assertIn('Id', res)
@@ -643,7 +643,7 @@ class StartContainerTest(BaseIntegrationTest):
             self.assertEqual(exitcode, 0, msg=cmd)
 
 
-class WaitTest(BaseIntegrationTest):
+class WaitTest(BaseAPIIntegrationTest):
     def test_wait(self):
         res = self.client.create_container(BUSYBOX, ['sleep', '3'])
         id = res['Id']
@@ -671,7 +671,7 @@ class WaitTest(BaseIntegrationTest):
         self.assertEqual(inspect['State']['ExitCode'], exitcode)
 
 
-class LogsTest(BaseIntegrationTest):
+class LogsTest(BaseAPIIntegrationTest):
     def test_logs(self):
         snippet = 'Flowering Nights (Sakuya Iyazoi)'
         container = self.client.create_container(
@@ -743,7 +743,7 @@ Line2'''
         self.assertEqual(logs, ''.encode(encoding='ascii'))
 
 
-class DiffTest(BaseIntegrationTest):
+class DiffTest(BaseAPIIntegrationTest):
     def test_diff(self):
         container = self.client.create_container(BUSYBOX, ['touch', '/test'])
         id = container['Id']
@@ -771,7 +771,7 @@ class DiffTest(BaseIntegrationTest):
         self.assertEqual(test_diff[0]['Kind'], 1)
 
 
-class StopTest(BaseIntegrationTest):
+class StopTest(BaseAPIIntegrationTest):
     def test_stop(self):
         container = self.client.create_container(BUSYBOX, ['sleep', '9999'])
         id = container['Id']
@@ -798,7 +798,7 @@ class StopTest(BaseIntegrationTest):
         self.assertEqual(state['Running'], False)
 
 
-class KillTest(BaseIntegrationTest):
+class KillTest(BaseAPIIntegrationTest):
     def test_kill(self):
         container = self.client.create_container(BUSYBOX, ['sleep', '9999'])
         id = container['Id']
@@ -875,7 +875,7 @@ class KillTest(BaseIntegrationTest):
         self.assertEqual(state['Running'], False, state)
 
 
-class PortTest(BaseIntegrationTest):
+class PortTest(BaseAPIIntegrationTest):
     def test_port(self):
 
         port_bindings = {
@@ -906,7 +906,7 @@ class PortTest(BaseIntegrationTest):
         self.client.kill(id)
 
 
-class ContainerTopTest(BaseIntegrationTest):
+class ContainerTopTest(BaseAPIIntegrationTest):
     def test_top(self):
         container = self.client.create_container(
             BUSYBOX, ['sleep', '60']
@@ -946,7 +946,7 @@ class ContainerTopTest(BaseIntegrationTest):
         self.assertEqual(res['Processes'][0][10], 'sleep 60')
 
 
-class RestartContainerTest(BaseIntegrationTest):
+class RestartContainerTest(BaseAPIIntegrationTest):
     def test_restart(self):
         container = self.client.create_container(BUSYBOX, ['sleep', '9999'])
         id = container['Id']
@@ -987,7 +987,7 @@ class RestartContainerTest(BaseIntegrationTest):
         self.client.kill(id)
 
 
-class RemoveContainerTest(BaseIntegrationTest):
+class RemoveContainerTest(BaseAPIIntegrationTest):
     def test_remove(self):
         container = self.client.create_container(BUSYBOX, ['true'])
         id = container['Id']
@@ -1009,7 +1009,7 @@ class RemoveContainerTest(BaseIntegrationTest):
         self.assertEqual(len(res), 0)
 
 
-class AttachContainerTest(BaseIntegrationTest):
+class AttachContainerTest(BaseAPIIntegrationTest):
     def test_run_container_streaming(self):
         container = self.client.create_container(BUSYBOX, '/bin/sh',
                                                  detach=True, stdin_open=True)
@@ -1040,7 +1040,7 @@ class AttachContainerTest(BaseIntegrationTest):
         self.assertEqual(data.decode('utf-8'), line)
 
 
-class PauseTest(BaseIntegrationTest):
+class PauseTest(BaseAPIIntegrationTest):
     def test_pause_unpause(self):
         container = self.client.create_container(BUSYBOX, ['sleep', '9999'])
         id = container['Id']
@@ -1069,7 +1069,7 @@ class PauseTest(BaseIntegrationTest):
         self.assertEqual(state['Paused'], False)
 
 
-class GetContainerStatsTest(BaseIntegrationTest):
+class GetContainerStatsTest(BaseAPIIntegrationTest):
     @requires_api_version('1.19')
     def test_get_container_stats_no_stream(self):
         container = self.client.create_container(
@@ -1100,7 +1100,7 @@ class GetContainerStatsTest(BaseIntegrationTest):
                     self.assertIn(key, chunk)
 
 
-class ContainerUpdateTest(BaseIntegrationTest):
+class ContainerUpdateTest(BaseAPIIntegrationTest):
     @requires_api_version('1.22')
     def test_update_container(self):
         old_mem_limit = 400 * 1024 * 1024
@@ -1147,7 +1147,7 @@ class ContainerUpdateTest(BaseIntegrationTest):
         )
 
 
-class ContainerCPUTest(BaseIntegrationTest):
+class ContainerCPUTest(BaseAPIIntegrationTest):
     @requires_api_version('1.18')
     def test_container_cpu_shares(self):
         cpu_shares = 512
