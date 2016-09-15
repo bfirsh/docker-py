@@ -98,10 +98,14 @@ class Container(Model):
 class ContainerCollection(Collection):
     model = Container
 
-    def run(self, image, command=None, stdout=True, stderr=False, **kwargs):
+    def run(self, image, command=None, stdout=True, stderr=False, remove=False,
+            **kwargs):
         if isinstance(image, Image):
             image = image.id
         detach = kwargs.get("detach", False)
+        if detach and remove:
+            raise RuntimeError("The options 'detach' and 'remove' cannot be "
+                               "used together.")
         try:
             container = self.create(image, command, **kwargs)
         except APIError as e:
@@ -118,14 +122,14 @@ class ContainerCollection(Collection):
 
         exit_status = container.wait()
         if exit_status != 0:
-            raise ContainerError(
-                container,
-                exit_status,
-                command,
-                image,
-                container.logs(stdout=False, stderr=True)
-            )
-        return container.logs(stdout=stdout, stderr=stderr)
+            stdout = False
+            stderr = True
+        out = container.logs(stdout=stdout, stderr=stderr)
+        if remove:
+            container.remove()
+        if exit_status != 0:
+            raise ContainerError(container, exit_status, command, image, out)
+        return out
 
     def create(self, image, *args, **kwargs):
         if isinstance(image, Image):

@@ -83,6 +83,31 @@ class ContainerCollectionTest(unittest.TestCase):
         client.containers.run(image)
         client.api.create_container.assert_called_with(image.id, None)
 
+    def test_run_remove(self):
+        client = make_fake_client()
+        client.containers.run("alpine")
+        client.api.remove_container.assert_not_called()
+
+        client = make_fake_client()
+        client.api.wait.return_value = 1
+        with self.assertRaises(docker.errors.ContainerError):
+            client.containers.run("alpine")
+        client.api.remove_container.assert_not_called()
+
+        client = make_fake_client()
+        client.containers.run("alpine", remove=True)
+        client.api.remove_container.assert_called_with(FAKE_CONTAINER_ID)
+
+        client = make_fake_client()
+        client.api.wait.return_value = 1
+        with self.assertRaises(docker.errors.ContainerError):
+            client.containers.run("alpine", remove=True)
+        client.api.remove_container.assert_called_with(FAKE_CONTAINER_ID)
+
+        client = make_fake_client()
+        with self.assertRaises(RuntimeError):
+            client.containers.run("alpine", detach=True, remove=True)
+
     def test_create(self):
         client = make_fake_client()
         container = client.containers.create(
