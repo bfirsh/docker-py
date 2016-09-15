@@ -8,9 +8,17 @@ import six
 import websocket
 
 
-from . import api
 from . import constants
 from . import errors
+from .api.build import BuildApiMixin
+from .api.container import ContainerApiMixin
+from .api.daemon import DaemonApiMixin
+from .api.exec_api import ExecApiMixin
+from .api.image import ImageApiMixin
+from .api.network import NetworkApiMixin
+from .api.service import ServiceApiMixin
+from .api.swarm import SwarmApiMixin
+from .api.volume import VolumeApiMixin
 from .auth import auth
 from .ssladapter import ssladapter
 from .tls import TLSConfig
@@ -27,17 +35,9 @@ def from_env(**kwargs):
     return Client.from_env(**kwargs)
 
 
-class Client(
-        requests.Session,
-        api.BuildApiMixin,
-        api.ContainerApiMixin,
-        api.DaemonApiMixin,
-        api.ExecApiMixin,
-        api.ImageApiMixin,
-        api.NetworkApiMixin,
-        api.ServiceApiMixin,
-        api.SwarmApiMixin,
-        api.VolumeApiMixin):
+class Client(requests.Session, BuildApiMixin, ContainerApiMixin,
+             DaemonApiMixin, ExecApiMixin, ImageApiMixin, NetworkApiMixin,
+             ServiceApiMixin, SwarmApiMixin, VolumeApiMixin):
     def __init__(self, base_url=None, version=None,
                  timeout=constants.DEFAULT_TIMEOUT_SECONDS, tls=False,
                  user_agent=constants.DEFAULT_USER_AGENT,
