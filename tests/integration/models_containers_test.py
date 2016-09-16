@@ -1,27 +1,27 @@
-import unittest
-
 import docker
+from .base import BaseIntegrationTest
 
 
-class ContainerCollectionTest(unittest.TestCase):
+class ContainerCollectionTest(BaseIntegrationTest):
 
     def test_run(self):
         client = docker.from_env()
         self.assertEqual(
-            client.containers.run("alpine", "echo hello world"),
+            client.containers.run("alpine", "echo hello world", remove=True),
             b'hello world\n'
         )
 
     def test_run_detach(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 300", detach=True)
+        self.tmp_containers.append(container.id)
         assert container.attrs['Config']['Image'] == "alpine"
         assert container.attrs['Config']['Cmd'] == ['sleep', '300']
 
     def test_run_with_error(self):
         client = docker.from_env()
         with self.assertRaises(docker.errors.ContainerError) as cm:
-            client.containers.run("alpine", "cat /test")
+            client.containers.run("alpine", "cat /test", remove=True)
         assert cm.exception.exit_status == 1
         assert "cat /test" in str(cm.exception)
         assert "alpine" in str(cm.exception)
@@ -30,6 +30,7 @@ class ContainerCollectionTest(unittest.TestCase):
     def test_get(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 300", detach=True)
+        self.tmp_containers.append(container.id)
         assert client.containers.get(container.id).attrs[
             'Config']['Image'] == "alpine"
 
@@ -37,6 +38,7 @@ class ContainerCollectionTest(unittest.TestCase):
         client = docker.from_env()
         container_id = client.containers.run(
             "alpine", "sleep 300", detach=True).id
+        self.tmp_containers.append(container_id)
         containers = [c for c in client.containers.list() if c.id ==
                       container_id]
         assert len(containers) == 1
@@ -49,7 +51,7 @@ class ContainerCollectionTest(unittest.TestCase):
         assert container_id not in [c.id for c in client.containers.list()]
 
 
-class ContainerTest(unittest.TestCase):
+class ContainerTest(BaseIntegrationTest):
 
     def test_attach(self):
         pass  # TODO
@@ -60,16 +62,18 @@ class ContainerTest(unittest.TestCase):
             "alpine", "sh -c 'echo \"hello\" > /test'",
             detach=True
         )
+        self.tmp_containers.append(container.id)
         container.wait()
         image = container.commit()
         self.assertEqual(
-            client.containers.run(image.id, "cat /test"),
+            client.containers.run(image.id, "cat /test", remove=True),
             b"hello\n"
         )
 
     def test_diff(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "touch /test", detach=True)
+        self.tmp_containers.append(container.id)
         container.wait()
         assert container.diff() == [{'Path': '/test', 'Kind': 1}]
 
@@ -78,6 +82,7 @@ class ContainerTest(unittest.TestCase):
         container = client.containers.run(
             "alpine", "sh -c 'echo \"hello\" > /test; sleep 60'", detach=True
         )
+        self.tmp_containers.append(container.id)
         assert container.exec_run("cat /test") == b"hello\n"
 
     def test_export(self):
@@ -89,6 +94,7 @@ class ContainerTest(unittest.TestCase):
     def test_kill(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 300", detach=True)
+        self.tmp_containers.append(container.id)
         while container.status != 'running':
             container.reload()
         assert container.status == 'running'
@@ -100,12 +106,14 @@ class ContainerTest(unittest.TestCase):
         client = docker.from_env()
         container = client.containers.run("alpine", "echo hello world",
                                           detach=True)
+        self.tmp_containers.append(container.id)
         container.wait()
         assert container.logs() == b"hello world\n"
 
     def test_pause(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 300", detach=True)
+        self.tmp_containers.append(container.id)
         container.pause()
         container.reload()
         assert container.status == "paused"
@@ -120,6 +128,7 @@ class ContainerTest(unittest.TestCase):
     def test_remove(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "echo hello", detach=True)
+        self.tmp_containers.append(container.id)
         assert container.id in [c.id for c in client.containers.list(all=True)]
         container.wait()
         container.remove()
@@ -130,11 +139,11 @@ class ContainerTest(unittest.TestCase):
         client = docker.from_env()
         container = client.containers.run("alpine", "echo hello", name="test1",
                                           detach=True)
+        self.tmp_containers.append(container.id)
         assert container.name == "test1"
         container.rename("test2")
         container.reload()
         assert container.name == "test2"
-        container.remove(force=True)
 
     def test_resize(self):
         # TODO
@@ -143,6 +152,7 @@ class ContainerTest(unittest.TestCase):
     def test_restart(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 100", detach=True)
+        self.tmp_containers.append(container.id)
         first_started_at = container.attrs['State']['StartedAt']
         container.restart()
         container.reload()
@@ -152,6 +162,7 @@ class ContainerTest(unittest.TestCase):
     def test_start(self):
         client = docker.from_env()
         container = client.containers.create("alpine", "sleep 50", detach=True)
+        self.tmp_containers.append(container.id)
         assert container.status == "created"
         container.start()
         container.reload()
@@ -160,6 +171,7 @@ class ContainerTest(unittest.TestCase):
     def test_stats(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 100", detach=True)
+        self.tmp_containers.append(container.id)
         stats = container.stats(stream=False)
         for key in ['read', 'networks', 'precpu_stats', 'cpu_stats',
                     'memory_stats', 'blkio_stats']:
@@ -168,6 +180,7 @@ class ContainerTest(unittest.TestCase):
     def test_stop(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 100", detach=True)
+        self.tmp_containers.append(container.id)
         assert container.status in ("running", "created")
         container.stop()
         container.reload()
@@ -176,6 +189,7 @@ class ContainerTest(unittest.TestCase):
     def test_top(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 60", detach=True)
+        self.tmp_containers.append(container.id)
         top = container.top()
         assert len(top['Processes']) == 1
         assert 'sleep 60' in top['Processes'][0]
@@ -184,6 +198,7 @@ class ContainerTest(unittest.TestCase):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 60", detach=True,
                                           host_config={'CpuShares': 2})
+        self.tmp_containers.append(container.id)
         assert container.attrs['HostConfig']['CpuShares'] == 2
         container.update(cpu_shares=3)
         container.reload()
@@ -193,7 +208,9 @@ class ContainerTest(unittest.TestCase):
         client = docker.from_env()
         container = client.containers.run("alpine", "sh -c 'exit 0'",
                                           detach=True)
+        self.tmp_containers.append(container.id)
         assert container.wait() == 0
         container = client.containers.run("alpine", "sh -c 'exit 1'",
                                           detach=True)
+        self.tmp_containers.append(container.id)
         assert container.wait() == 1

@@ -1,13 +1,8 @@
-import unittest
 import docker
+from .base import BaseIntegrationTest
 
 
-class VolumesTest(unittest.TestCase):
-    def tearDown(self):
-        client = docker.from_env()
-        for volume in client.volumes.list(filters={'name': 'dockerpytest_'}):
-            volume.remove()
-
+class VolumesTest(BaseIntegrationTest):
     def test_create_get(self):
         client = docker.from_env()
         volume = client.volumes.create(
@@ -15,6 +10,7 @@ class VolumesTest(unittest.TestCase):
             driver='local',
             labels={'labelkey': 'labelvalue'}
         )
+        self.tmp_volumes.append(volume.id)
         assert volume.id
         assert volume.name == 'dockerpytest_1'
         assert volume.attrs['Labels'] == {'labelkey': 'labelvalue'}
@@ -25,6 +21,7 @@ class VolumesTest(unittest.TestCase):
     def test_list_remove(self):
         client = docker.from_env()
         volume = client.volumes.create('dockerpytest_1')
+        self.tmp_volumes.append(volume.id)
         assert volume in client.volumes.list()
         assert volume in client.volumes.list(filters={'name': 'dockerpytest_'})
         assert volume not in client.volumes.list(filters={'name': 'foobar'})

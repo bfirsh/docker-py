@@ -1,10 +1,9 @@
 import io
-import unittest
-
 import docker
+from .base import BaseIntegrationTest
 
 
-class ImageCollectionTest(unittest.TestCase):
+class ImageCollectionTest(BaseIntegrationTest):
 
     def test_build(self):
         client = docker.from_env()
@@ -12,6 +11,7 @@ class ImageCollectionTest(unittest.TestCase):
             "FROM alpine\n"
             "CMD echo hello world".encode('ascii')
         ))
+        self.tmp_imgs.append(image.id)
         assert client.containers.run(image) == b"hello world\n"
 
     def test_build_with_error(self):
@@ -45,7 +45,7 @@ class ImageCollectionTest(unittest.TestCase):
         assert 'alpine:latest' in image.attrs['RepoTags']
 
 
-class ImageTest(unittest.TestCase):
+class ImageTest(BaseIntegrationTest):
 
     def test_tag_and_remove(self):
         repo = 'dockersdk.tests.images.test_tag'
@@ -56,6 +56,7 @@ class ImageTest(unittest.TestCase):
         image = client.images.pull('alpine:latest')
 
         image.tag(repo, tag)
+        self.tmp_imgs.append(identifier)
         assert image.id in get_ids(client.images.list(repo))
         assert image.id in get_ids(client.images.list(identifier))
 
