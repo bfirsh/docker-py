@@ -20,7 +20,8 @@ from .. import auth, ssladapter
 from ..constants import (DEFAULT_TIMEOUT_SECONDS, DEFAULT_USER_AGENT,
                          IS_WINDOWS_PLATFORM, DEFAULT_DOCKER_API_VERSION,
                          STREAM_HEADER_SIZE_BYTES, DEFAULT_NUM_POOLS)
-from ..errors import DockerException, APIError, TLSParameterError, NotFound
+from ..errors import (DockerException, TLSParameterError,
+                      create_api_error_from_http_exception)
 from ..tls import TLSConfig
 from ..transport import UnixAdapter
 from ..utils import utils, check_resource, update_headers
@@ -168,14 +169,12 @@ class APIClient(
         else:
             return '{0}{1}'.format(self.base_url, pathfmt.format(*args))
 
-    def _raise_for_status(self, response, explanation=None):
+    def _raise_for_status(self, response):
         """Raises stored :class:`APIError`, if one occurred."""
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
-            if e.response.status_code == 404:
-                raise NotFound(e, response, explanation=explanation)
-            raise APIError(e, response, explanation=explanation)
+            raise create_api_error_from_http_exception(e)
 
     def _result(self, response, json=False, binary=False):
         assert not (json and binary)

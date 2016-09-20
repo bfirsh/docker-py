@@ -50,15 +50,8 @@ class ContainerCollectionTest(unittest.TestCase):
         client = make_fake_client()
 
         # raise exception on first call, then return normal value
-        class MockResponse(object):
-            status_code = 404
-            content = "No such image: alpine (tag: latest)"
-
-            def json(self):
-                return {"message": self.content}
-
         client.api.create_container.side_effect = [
-            docker.errors.APIError("", MockResponse()),
+            docker.errors.ImageNotFound(""),
             client.api.create_container.return_value
         ]
 

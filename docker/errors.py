@@ -1,20 +1,35 @@
 import requests
 
 
-class APIError(requests.exceptions.HTTPError):
-    def __init__(self, message, response, explanation=None):
+class DockerException(Exception):
+    pass
+
+
+def create_api_error_from_http_exception(e):
+    """
+    Create a suitable APIError from requests.exceptions.HTTPError.
+    """
+    response = e.response
+    try:
+        explanation = response.json()['message']
+    except ValueError:
+        explanation = response.content.strip()
+    cls = APIError
+    if response.status_code == 404:
+        if explanation and 'No such image' in str(explanation):
+            cls = ImageNotFound
+        else:
+            cls = NotFound
+    raise cls(e, response=response, explanation=explanation)
+
+
+class APIError(requests.exceptions.HTTPError, DockerException):
+    def __init__(self, message, response=None, explanation=None):
         # requests 1.2 supports response as a keyword argument, but
         # requests 1.1 doesn't
         super(APIError, self).__init__(message)
         self.response = response
-
         self.explanation = explanation
-
-        if self.explanation is None and response.content:
-            try:
-                self.explanation = response.json()['message']
-            except ValueError:
-                self.explanation = response.content.strip()
 
     def __str__(self):
         message = super(APIError, self).__str__()
@@ -32,26 +47,27 @@ class APIError(requests.exceptions.HTTPError):
 
         return message
 
+    @property
+    def status_code(self):
+        if self.response:
+            return self.response.status_code
+
     def is_client_error(self):
-        return 400 <= self.response.status_code < 500
+        if self.status_code is None:
+            return False
+        return 400 <= self.status_code < 500
 
     def is_server_error(self):
-        return 500 <= self.response.status_code < 600
-
-    def is_image_not_found_error(self):
-        """
-        Returns whether this error is an image not found error.
-        """
-        return (self.response.status_code == 404 and
-                self.explanation and
-                'No such image' in str(self.explanation))
-
-
-class DockerException(Exception):
-    pass
+        if self.status_code is None:
+            return False
+        return 500 <= self.status_code < 600
 
 
 class NotFound(APIError):
+    pass
+
+
+class ImageNotFound(NotFound):
     pass
 
 

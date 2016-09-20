@@ -1,5 +1,4 @@
-from docker.errors import APIError
-from ..errors import ContainerError
+from ..errors import ContainerError, ImageNotFound
 from .images import Image
 from .resource import Collection, Model
 
@@ -108,12 +107,9 @@ class ContainerCollection(Collection):
                                "used together.")
         try:
             container = self.create(image, command, **kwargs)
-        except APIError as e:
-            if e.is_image_not_found_error():
-                self.client.images.pull(image)
-                container = self.create(image, command, **kwargs)
-            else:
-                raise
+        except ImageNotFound:
+            self.client.images.pull(image)
+            container = self.create(image, command, **kwargs)
 
         container.start()
 

@@ -27,6 +27,11 @@ class ContainerCollectionTest(BaseIntegrationTest):
         assert "alpine" in str(cm.exception)
         assert "No such file or directory" in str(cm.exception)
 
+    def test_run_with_image_that_does_not_exist(self):
+        client = docker.from_env()
+        with self.assertRaises(docker.errors.ImageNotFound):
+            client.containers.run("dockerpytest_does_not_exist")
+
     def test_get(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 300", detach=True)
@@ -179,10 +184,10 @@ class ContainerTest(BaseIntegrationTest):
 
     def test_stop(self):
         client = docker.from_env()
-        container = client.containers.run("alpine", "sleep 100", detach=True)
+        container = client.containers.run("alpine", "top", detach=True)
         self.tmp_containers.append(container.id)
         assert container.status in ("running", "created")
-        container.stop()
+        container.stop(timeout=2)
         container.reload()
         assert container.status == "exited"
 
