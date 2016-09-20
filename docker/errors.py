@@ -86,7 +86,7 @@ class NullResource(DockerException, ValueError):
     pass
 
 
-class ContainerError(Exception):
+class ContainerError(DockerException):
     """
     Represents a container that has exited with a non-zero exit code.
     """
