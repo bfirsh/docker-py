@@ -2,8 +2,7 @@
 class Model(object):
     id_attribute = 'Id'
 
-    def __init__(self, attrs=None, url=None, client=None, collection=None):
-        self.url = url
+    def __init__(self, attrs=None, client=None, collection=None):
         self.client = client
         self.collection = collection
         self.attrs = attrs
@@ -36,9 +35,8 @@ class Model(object):
 class Collection(object):
     model = None
 
-    def __init__(self, client=None, url=None):
+    def __init__(self, client=None):
         self.client = client
-        self.url = url
 
     def list(self):
         raise NotImplementedError
