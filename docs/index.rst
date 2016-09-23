@@ -6,7 +6,7 @@
 Welcome to docker-sdk-python's documentation!
 =============================================
 
-Here are the docs: :doc:`api/docker.api`
+The low-level API documentation is :doc:`here <api>`.
 
 Indices and tables
 ==================

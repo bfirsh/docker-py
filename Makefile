@@ -74,7 +74,6 @@ flake8: build
 
 .PHONY: docs
 docs: build-docs
-	docker run -it -v `pwd`:/home/docker-py docker-py-docs sphinx-apidoc -o docs/api docker
 	docker run -it -v `pwd`:/home/docker-py docker-py-docs sphinx-build docs ./_build
 
 .PHONY: shell
