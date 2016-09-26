@@ -18,6 +18,88 @@ class BuildApiMixin(object):
               custom_context=False, encoding=None, pull=False,
               forcerm=False, dockerfile=None, container_limits=None,
               decode=False, buildargs=None, gzip=False):
+        """
+        Similar to the ``docker build`` command. Either ``path`` or ``fileobj``
+        needs to be set. ``path`` can be a local path (to a directory containing
+        a Dockerfile) or a remote URL. ``fileobj`` must be a readable file-like
+        object to a Dockerfile.
+
+        If you have a tar file for the Docker build context (including a
+        Dockerfile) already, pass a readable file-like object to ``fileobj`` and
+        also pass ``custom_context=True``. If the stream is compressed also, set
+        ``encoding`` to the correct value (e.g ``gzip``).
+
+        Example:
+            >>> from io import BytesIO
+            >>> from docker import Client
+            >>> dockerfile = '''
+            ... # Shared Volume
+            ... FROM busybox:buildroot-2014.02
+            ... MAINTAINER first last, first.last@yourdomain.com
+            ... VOLUME /data
+            ... CMD ["/bin/sh"]
+            ... '''
+            >>> f = BytesIO(dockerfile.encode('utf-8'))
+            >>> cli = Client(base_url='tcp://127.0.0.1:2375')
+            >>> response = [line for line in cli.build(
+            ...     fileobj=f, rm=True, tag='yourname/volume'
+            ... )]
+            >>> response
+            ['{"stream":" ---\\u003e a9eb17255234\\n"}',
+            '{"stream":"Step 1 : MAINTAINER first last, first.last@yourdomain.com\\n"}',
+            '{"stream":" ---\\u003e Running in 08787d0ee8b1\\n"}',
+            '{"stream":" ---\\u003e 23e5e66a4494\\n"}',
+            '{"stream":"Removing intermediate container 08787d0ee8b1\\n"}',
+            '{"stream":"Step 2 : VOLUME /data\\n"}',
+            '{"stream":" ---\\u003e Running in abdc1e6896c6\\n"}',
+            '{"stream":" ---\\u003e 713bca62012e\\n"}',
+            '{"stream":"Removing intermediate container abdc1e6896c6\\n"}',
+            '{"stream":"Step 3 : CMD [\\"/bin/sh\\"]\\n"}',
+            '{"stream":" ---\\u003e Running in dba30f2a1a7e\\n"}',
+            '{"stream":" ---\\u003e 032b8b2855fc\\n"}',
+            '{"stream":"Removing intermediate container dba30f2a1a7e\\n"}',
+            '{"stream":"Successfully built 032b8b2855fc\\n"}']
+
+        Args:
+            path (str): Path to the directory containing the Dockerfile
+            tag (str): A tag to add to the final image
+            quiet (bool): Whether to return the status
+            fileobj: A file object to use as the Dockerfile. (Or a file-like
+                object)
+            nocache (bool): Don't use the cache when set to ``True``
+            rm (bool): Remove intermediate containers. The ``docker build``
+                command now defaults to ``--rm=true``, but we have kept the old
+                default of `False` to preserve backward compatibility
+            stream (bool): *Deprecated for API version > 1.8 (always True)*.
+                Return a blocking generator you can iterate over to retrieve
+                build output as it happens
+            timeout (int): HTTP timeout
+            custom_context (bool): Optional if using ``fileobj``
+            encoding (str): The encoding for a stream. Set to ``gzip`` for
+                compressing
+            pull (bool): Downloads any updates to the FROM image in Dockerfiles
+            forcerm (bool): Always remove intermediate containers, even after
+                unsuccessful builds
+            dockerfile (str): path within the build context to the Dockerfile
+            buildargs (dict): A dictionary of build arguments
+            container_limits (dict): A dictionary of limits applied to each
+                container created by the build process. Valid keys:
+
+                - memory (int): set memory limit for build
+                - memswap (int): Total memory (memory + swap), -1 to disable
+                    swap
+                - cpushares (int): CPU shares (relative weight)
+                - cpusetcpus (str): CPUs in which to allow execution, e.g.,
+                    ``"0-3"``, ``"0,1"``
+            decode (bool): If set to ``True``, the returned stream will be
+                decoded into dicts on the fly. Default ``False``.
+
+        Returns:
+            A generator for the build output.
+
+        Raises:
+            ``TypeError``, if neither ``path`` nor ``fileobj`` is specified.
+        """
         remote = context = None
         headers = {}
         container_limits = container_limits or {}

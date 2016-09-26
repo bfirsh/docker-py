@@ -19,6 +19,13 @@ Images
   :members:
   :undoc-members:
 
+Building images
+---------------
+
+.. autoclass:: docker.api.client.BuildApiMixin
+  :members:
+  :undoc-members:
+
 Networks
 --------
 

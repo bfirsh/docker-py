@@ -11,6 +11,26 @@ class ContainerApiMixin(object):
     @utils.check_resource
     def attach(self, container, stdout=True, stderr=True,
                stream=False, logs=False):
+        """
+        Attach to a container.
+
+        The ``.logs()`` function is a wrapper around this method, which you can use
+        instead if you want to fetch/stream container output without first retrieving
+        the entire backlog.
+
+        Args:
+            container (str): The container to attach to.
+            stdout (bool): Include stdout.
+            stderr (bool): Include stderr.
+            stream (bool): Return container output progressively as an iterator of
+                strings, rather than a single string.
+            logs (bool): Include the container's previous output.
+
+        Returns:
+            By default, the container's output as a single string.
+
+            If ``stream=True``, an iterator of output strings.
+        """
         params = {
             'logs': logs and 1 or 0,
             'stdout': stdout and 1 or 0,
@@ -30,6 +50,16 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def attach_socket(self, container, params=None, ws=False):
+        """
+        Like ``attach``, but returns the underlying socket-like object for the
+        HTTP request.
+
+        Args:
+            container (str): The container to attach to.
+            params (dict): Dictionary of request parameters (e.g. ``stdout``,
+                ``stderr``, ``stream``).
+            ws (bool): Use websockets instead of raw HTTP.
+        """
         if params is None:
             params = {
                 'stdout': 1,
@@ -56,6 +86,20 @@ class ContainerApiMixin(object):
     @utils.check_resource
     def commit(self, container, repository=None, tag=None, message=None,
                author=None, changes=None, conf=None):
+        """
+        Identical to the `docker commit` command.
+
+        Args:
+            container (str): The image hash of the container
+            repository (str): The repository to push the image to
+            tag (str): The tag to push
+            message (str): A commit message
+            author (str): The name of the author
+            changes (str): Dockerfile instructions to apply while committing
+            conf (dict): The configuration for the container. See the
+                `Docker remote API <https://docs.docker.com/reference/api/docker_remote_api/>`_
+                for full details.
+        """
         params = {
             'container': container,
             'repo': repository,
@@ -71,6 +115,45 @@ class ContainerApiMixin(object):
     def containers(self, quiet=False, all=False, trunc=False, latest=False,
                    since=None, before=None, limit=-1, size=False,
                    filters=None):
+        """
+        List containers. Identical to the ``docker ps`` command.
+
+        Args:
+            quiet (bool): Only display numeric Ids
+            all (bool): Show all containers. Only running containers are shown
+                by default trunc (bool): Truncate output
+            latest (bool): Show only the latest created container, include
+                non-running ones.
+            since (str): Show only containers created since Id or Name, include
+                non-running ones
+            before (str): Show only container created before Id or Name, include
+                non-running ones
+            limit (int): Show `limit` last created containers, include
+                non-running ones
+            size (bool): Display sizes
+            filters (dict): Filters to be processed on the image list. Available
+                filters:
+
+                - `exited` (int): Only containers with specified exit code
+                - `status` (str): One of ``restarting``, ``running``,
+                    ``paused``, ``exited``
+                - `label` (str): format either ``"key"`` or ``"key=value"``
+                - `id` (str): The id of the container.
+                - `name` (str): The name of the container.
+                - `ancestor` (str): Filter by container ancestor. Format of
+                    ``<image-name>[:tag]``, ``<image-id>``, or
+                    ``<image@digest>``.
+                - `before` (str): Only containers created before a particular
+                    container. Give the container name or id.
+                - `since` (str): Only containers created after a particular
+                    container. Give container name or id.
+
+                A comprehensive list can be found in the documentation for
+                `docker ps <https://docs.docker.com/engine/reference/commandline/ps>`_.
+
+        Returns:
+            A list of dicts, one per container
+        """
         params = {
             'limit': 1 if latest else limit,
             'all': 1 if all else 0,

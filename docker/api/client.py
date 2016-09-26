@@ -48,6 +48,17 @@ class APIClient(
 
     Each method maps one-to-one with a REST API endpoint, so calling each
     method results in a single API call.
+
+    Args:
+        base_url (str): URL to the Docker server, e.g.
+            ``unix:///var/run/docker.sock`` or ``tcp://127.0.0.1:1234``
+        version (str): The version of the API the client will use. Specify
+            ``'auto'`` to use the API version provided by the server.
+        timeout (int): The HTTP request timeout, in seconds.
+        tls (bool or TLSConfig): Enable/configure TLS. Pass ``True`` to enable
+            it with default options, or pass a :doc:`TLSConfig <tls>` object to
+            use custom configuration.
+        user_agent (str): Set a custom user agent for requests to the server.
     """
     def __init__(self, base_url=None, version=None,
                  timeout=DEFAULT_TIMEOUT_SECONDS, tls=False,
