@@ -8,6 +8,7 @@ The APIClient class is a low-level interface to the Docker Remote API.
 Containers
 ----------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.ContainerApiMixin
   :members:
   :undoc-members:
@@ -15,6 +16,7 @@ Containers
 Images
 ------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.ImageApiMixin
   :members:
   :undoc-members:
@@ -22,6 +24,7 @@ Images
 Building images
 ---------------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.BuildApiMixin
   :members:
   :undoc-members:
@@ -29,6 +32,7 @@ Building images
 Networks
 --------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.NetworkApiMixin
   :members:
   :undoc-members:
@@ -36,6 +40,7 @@ Networks
 Volumes
 -------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.VolumeApiMixin
   :members:
   :undoc-members:
@@ -43,6 +48,7 @@ Volumes
 Executing commands in containers
 --------------------------------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.ExecApiMixin
   :members:
   :undoc-members:
@@ -50,6 +56,7 @@ Executing commands in containers
 Swarms
 ------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.SwarmApiMixin
   :members:
   :undoc-members:
@@ -57,6 +64,7 @@ Swarms
 Services
 --------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.ServiceApiMixin
   :members:
   :undoc-members:
@@ -64,6 +72,7 @@ Services
 The Docker daemon
 -----------------
 
+.. rst-class:: hide-signature
 .. autoclass:: docker.api.client.DaemonApiMixin
   :members:
   :undoc-members:
