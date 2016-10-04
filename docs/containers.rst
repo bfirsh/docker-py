@@ -22,6 +22,9 @@ Methods available on ``client.containers``:
   .. automethod:: list(**kwargs)
   .. automethod:: run(image, command, **kwargs)
 
+Container objects
+-----------------
+
 .. autoclass:: Container()
   :members:
   :undoc-members:
