@@ -16,7 +16,6 @@ Methods available on ``client.containers``:
 
 .. rst-class:: hide-signature
 .. autoclass:: ContainerCollection
-  :members: get, list
 
   .. automethod:: create(image, command, **kwargs)
   .. automethod:: get(id_or_name)
