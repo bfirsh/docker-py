@@ -99,6 +99,16 @@ class ContainerCollection(Collection):
 
     def run(self, image, command=None, stdout=True, stderr=False, remove=False,
             **kwargs):
+        """
+        Run a container.
+
+        Returns:
+            The container logs, either ``stdout``, ``stderr``, or both,
+            depending on the parameters passed.
+
+            If ``detach`` is ``True``, a :py:class:`Container` object is
+            returned instead.
+        """
         if isinstance(image, Image):
             image = image.id
         detach = kwargs.get("detach", False)
@@ -128,15 +138,34 @@ class ContainerCollection(Collection):
         return out
 
     def create(self, image, *args, **kwargs):
+        """
+        Create a container.
+
+        Returns:
+            A :py:class:`Container` object.
+        """
         if isinstance(image, Image):
             image = image.id
         resp = self.client.api.create_container(image, *args, **kwargs)
         return self.get(resp['Id'])
 
-    def get(self, cid):
-        return self.prepare_model(self.client.api.inspect_container(cid))
+    def get(self, container_id):
+        """
+        Get a container by name or ID.
+
+        Returns:
+            A :py:class:`Container` object.
+        """
+        resp = self.client.api.inspect_container(container_id)
+        return self.prepare_model(resp)
 
     def list(self, all=False, before=None, filters=None, limit=-1, since=None):
+        """
+        List containers.
+
+        Returns:
+            A list of :py:class:`Container` objects.
+        """
         resp = self.client.api.containers(all=all, before=before,
                                           filters=filters, limit=limit,
                                           since=since)

@@ -6,7 +6,11 @@
 Welcome to docker-sdk-python's documentation!
 =============================================
 
-The low-level API documentation is :doc:`here <api>`.
+.. toctree::
+   :maxdepth: 2
+
+   containers
+   api
 
 Indices and tables
 ==================
@@ -14,4 +18,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
