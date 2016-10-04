@@ -34,8 +34,8 @@ class Image(Model):
     def history(self):
         return self.client.api.history(self.id)
 
-    def push(self):
-        return self.client.api.push(self.id)
+    def push(self, *args, **kwargs):
+        return self.client.api.push(self.id, *args, **kwargs)
 
     def tag(self, *args, **kwargs):
         self.client.api.tag(self.id, *args, **kwargs)
