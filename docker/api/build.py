@@ -35,7 +35,6 @@ class BuildApiMixin(object):
             >>> dockerfile = '''
             ... # Shared Volume
             ... FROM busybox:buildroot-2014.02
-            ... MAINTAINER first last, first.last@yourdomain.com
             ... VOLUME /data
             ... CMD ["/bin/sh"]
             ... '''
@@ -46,19 +45,15 @@ class BuildApiMixin(object):
             ... )]
             >>> response
             ['{"stream":" ---\\u003e a9eb17255234\\n"}',
-            '{"stream":"Step 1 : MAINTAINER first last, first.last@yourdomain.com\\n"}',
-            '{"stream":" ---\\u003e Running in 08787d0ee8b1\\n"}',
-            '{"stream":" ---\\u003e 23e5e66a4494\\n"}',
-            '{"stream":"Removing intermediate container 08787d0ee8b1\\n"}',
-            '{"stream":"Step 2 : VOLUME /data\\n"}',
-            '{"stream":" ---\\u003e Running in abdc1e6896c6\\n"}',
-            '{"stream":" ---\\u003e 713bca62012e\\n"}',
-            '{"stream":"Removing intermediate container abdc1e6896c6\\n"}',
-            '{"stream":"Step 3 : CMD [\\"/bin/sh\\"]\\n"}',
-            '{"stream":" ---\\u003e Running in dba30f2a1a7e\\n"}',
-            '{"stream":" ---\\u003e 032b8b2855fc\\n"}',
-            '{"stream":"Removing intermediate container dba30f2a1a7e\\n"}',
-            '{"stream":"Successfully built 032b8b2855fc\\n"}']
+             '{"stream":"Step 1 : VOLUME /data\\n"}',
+             '{"stream":" ---\\u003e Running in abdc1e6896c6\\n"}',
+             '{"stream":" ---\\u003e 713bca62012e\\n"}',
+             '{"stream":"Removing intermediate container abdc1e6896c6\\n"}',
+             '{"stream":"Step 2 : CMD [\\"/bin/sh\\"]\\n"}',
+             '{"stream":" ---\\u003e Running in dba30f2a1a7e\\n"}',
+             '{"stream":" ---\\u003e 032b8b2855fc\\n"}',
+             '{"stream":"Removing intermediate container dba30f2a1a7e\\n"}',
+             '{"stream":"Successfully built 032b8b2855fc\\n"}']
 
         Args:
             path (str): Path to the directory containing the Dockerfile
