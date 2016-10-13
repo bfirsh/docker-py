@@ -14,16 +14,16 @@ class ContainerApiMixin(object):
         """
         Attach to a container.
 
-        The ``.logs()`` function is a wrapper around this method, which you can use
-        instead if you want to fetch/stream container output without first retrieving
-        the entire backlog.
+        The ``.logs()`` function is a wrapper around this method, which you can
+        use instead if you want to fetch/stream container output without first
+        retrieving the entire backlog.
 
         Args:
             container (str): The container to attach to.
             stdout (bool): Include stdout.
             stderr (bool): Include stderr.
-            stream (bool): Return container output progressively as an iterator of
-                strings, rather than a single string.
+            stream (bool): Return container output progressively as an iterator
+                of strings, rather than a single string.
             logs (bool): Include the container's previous output.
 
         Returns:
@@ -97,7 +97,8 @@ class ContainerApiMixin(object):
             author (str): The name of the author
             changes (str): Dockerfile instructions to apply while committing
             conf (dict): The configuration for the container. See the
-                `Docker remote API <https://docs.docker.com/reference/api/docker_remote_api/>`_
+                `Remote API documentation
+                <https://docs.docker.com/reference/api/docker_remote_api/>`_
                 for full details.
         """
         params = {
@@ -126,13 +127,13 @@ class ContainerApiMixin(object):
                 non-running ones.
             since (str): Show only containers created since Id or Name, include
                 non-running ones
-            before (str): Show only container created before Id or Name, include
-                non-running ones
+            before (str): Show only container created before Id or Name,
+                include non-running ones
             limit (int): Show `limit` last created containers, include
                 non-running ones
             size (bool): Display sizes
-            filters (dict): Filters to be processed on the image list. Available
-                filters:
+            filters (dict): Filters to be processed on the image list.
+                Available filters:
 
                 - `exited` (int): Only containers with specified exit code
                 - `status` (str): One of ``restarting``, ``running``,
@@ -149,7 +150,8 @@ class ContainerApiMixin(object):
                     container. Give container name or id.
 
                 A comprehensive list can be found in the documentation for
-                `docker ps <https://docs.docker.com/engine/reference/commandline/ps>`_.
+                `docker ps
+                <https://docs.docker.com/engine/reference/commandline/ps>`_.
 
         Returns:
             A list of dicts, one per container
@@ -214,10 +216,8 @@ class ContainerApiMixin(object):
                          mac_address=None, labels=None, volume_driver=None,
                          stop_signal=None, networking_config=None):
         """
-        Creates a container that can then be started with
-        ``~ContainerApiMixin.start``. Parameters are similar to
-        those for the ``docker run`` command except it doesn't support the
-        attach options (``-a``).
+        Creates a container. Parameters are similar to those for the ``docker
+        run`` command except it doesn't support the attach options (``-a``).
 
         **Port bindings**
 
@@ -648,8 +648,10 @@ class ContainerApiMixin(object):
         Args:
             container (str): The container to remove
             v (bool): Remove the volumes associated with the container
-            link (bool): Remove the specified link and not the underlying container
-            force (bool): Force the removal of a running container (uses SIGKILL)
+            link (bool): Remove the specified link and not the underlying
+                container
+            force (bool): Force the removal of a running container (uses
+                ``SIGKILL``)
         """
         params = {'v': v, 'link': link, 'force': force}
         res = self._delete(
@@ -693,8 +695,11 @@ class ContainerApiMixin(object):
         Restart a container. Similar to the ``docker restart`` command.
 
         Args:
-            container (str or dict): The container to restart. If a dict, the ``Id`` key is used.
-            timeout (int): Number of seconds to try to stop for before killing the container. Once killed it will then be restarted. Default is 10 seconds.
+            container (str or dict): The container to restart. If a dict, the
+                ``Id`` key is used.
+            timeout (int): Number of seconds to try to stop for before killing
+                the container. Once killed it will then be restarted. Default
+                is 10 seconds.
         """
         params = {'t': timeout}
         url = self._url("/containers/{0}/restart", container)
@@ -709,9 +714,12 @@ class ContainerApiMixin(object):
               extra_hosts=None, read_only=None, pid_mode=None, ipc_mode=None,
               security_opt=None, ulimits=None):
         """
-        Similar to the ``docker start`` command, but doesn't support attach options. Use ``.logs()`` to recover ``stdout`` and ``stderr``.
+        Similar to the ``docker start`` command, but doesn't support attach
+        options. Use ``.logs()`` to recover ``stdout`` and ``stderr``.
 
-        **Deprecation warning:** For API version > 1.15, it is highly recommended to provide host config options in the ``host_config`` parameter of :py:meth:`~ContainerApiMixin.create_container`.
+        **Deprecation warning:** For API version > 1.15, it is highly
+        recommended to provide host config options in the ``host_config``
+        parameter of :py:meth:`~ContainerApiMixin.create_container`.
 
         Args:
             container (str): The container to start
@@ -792,14 +800,11 @@ class ContainerApiMixin(object):
 
         Args:
             container (str): The container to stream statistics from
-            decode (bool): If set to true, stream will be decoded into dicts on the fly. False by default.
-            stream (bool): If set to false, only the current stats will be returned instead of a stream. True by default.
+            decode (bool): If set to true, stream will be decoded into dicts
+                on the fly. False by default.
+            stream (bool): If set to false, only the current stats will be
+                returned instead of a stream. True by default.
 
-        Example:
-
-            >>> for stat in cli.stats('elasticsearch'):
-            >>>     print(stat)
-            {"read":"2015-02-11T21:47:30.49388286+02:00","networks":{"eth0":{"rx_bytes":648,"rx_packets":8 ...
         """
         url = self._url("/containers/{0}/stats", container)
         if stream:
@@ -816,7 +821,8 @@ class ContainerApiMixin(object):
 
         Args:
             container (str): The container to stop
-            timeout (int): Timeout in seconds to wait for the container to stop before sending a ``SIGKILL``. Default: 10
+            timeout (int): Timeout in seconds to wait for the container to
+                stop before sending a ``SIGKILL``. Default: 10
         """
         params = {'t': timeout}
         url = self._url("/containers/{0}/stop", container)
@@ -876,7 +882,8 @@ class ContainerApiMixin(object):
             cpuset_mems (str): MEMs in which to allow execution
             mem_limit (int or str): Memory limit
             mem_reservation (int or str): Memory soft limit
-            memswap_limit (int or str): Total memory (memory + swap), -1 to disable swap
+            memswap_limit (int or str): Total memory (memory + swap), -1 to
+                disable swap
             kernel_memory (int or str): Kernel memory limit
             restart_policy (dict): Restart policy dictionary
 
@@ -919,14 +926,17 @@ class ContainerApiMixin(object):
     @utils.check_resource
     def wait(self, container, timeout=None):
         """
-        Identical to the ``docker wait`` command. Block until a container stops, then return its exit code.
+        Identical to the ``docker wait`` command. Block until a container
+        stops, then return its exit code.
 
         Args:
-            container (str or dict): The container to wait on. If a dict, the ``Id`` key is used.
+            container (str or dict): The container to wait on. If a dict, the
+                ``Id`` key is used.
             timeout (int): Request timeout
 
         Returns:
-            (int): The exit code of the container. Returns ``-1`` if the API responds without a ``StatusCode`` attribute.
+            (int): The exit code of the container. Returns ``-1`` if the API
+            responds without a ``StatusCode`` attribute.
 
         Raises:
             requests.exceptions.ReadTimeout: If the timeout is exceeded.

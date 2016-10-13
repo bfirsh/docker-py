@@ -13,16 +13,25 @@ class ServiceApiMixin(object):
         Create a service.
 
         Args:
-            task_template (dict): Specification of the task to start as part of the new service. See the [TaskTemplate class](#TaskTemplate) for details.
+            task_template (dict): Specification of the task to start as part
+                of the new service. See the [TaskTemplate
+                class](#TaskTemplate) for details.
             name (string): User-defined name for the service. Optional.
-            labels (dict): A map of labels to associate with the service. Optional.
-            mode (string): Scheduling mode for the service (``replicated`` or ``global``). Defaults to ``replicated``.
-            update_config (dict): Specification for the update strategy of the service. See the [UpdateConfig class](#UpdateConfig) for details. Default: ``None``.
-            networks (list): List of network names or IDs to attach the service to. Default: ``None``.
-            endpoint_config (dict): Properties that can be configured to access and load balance a service. Default: ``None``.
+            labels (dict): A map of labels to associate with the service.
+                Optional.
+            mode (string): Scheduling mode for the service (``replicated`` or
+                ``global``). Defaults to ``replicated``.
+            update_config (dict): Specification for the update strategy of the
+                service. See the [UpdateConfig class](#UpdateConfig) for
+                details. Default: ``None``.
+            networks (list): List of network names or IDs to attach the
+                service to. Default: ``None``.
+            endpoint_config (dict): Properties that can be configured to
+                access and load balance a service. Default: ``None``.
 
         Returns:
-            A dictionary containing an ``ID`` key for the newly created service.
+            A dictionary containing an ``ID`` key for the newly created
+            service.
         """
         if endpoint_config is not None:
             warnings.warn(
@@ -115,7 +124,8 @@ class ServiceApiMixin(object):
         List services.
 
         Args:
-            filters (dict): Filters to process on the nodes list. Valid filters: ``id`` and ``name``. Default: ``None``.
+            filters (dict): Filters to process on the nodes list. Valid
+                filters: ``id`` and ``name``. Default: ``None``.
 
         Returns:
             A list of dictionaries containing data about each service.
@@ -132,7 +142,9 @@ class ServiceApiMixin(object):
         Retrieve a list of tasks.
 
         Args:
-            filters (dict): A map of filters to process on the tasks list. Valid filters: ``id``, ``name``, ``service``, ``node``, ``label`` and ``desired-state``.
+            filters (dict): A map of filters to process on the tasks list.
+                Valid filters: ``id``, ``name``, ``service``, ``node``,
+                ``label`` and ``desired-state``.
 
         Returns:
             (list): List of task dictionaries.
@@ -154,15 +166,25 @@ class ServiceApiMixin(object):
         Update a service.
 
         Args:
-            service (string): A service identifier (either its name or service ID).
-            version (int): The version number of the service object being updated. This is required to avoid conflicting writes.
-            task_template (dict): Specification of the updated task to start as part of the service. See the [TaskTemplate class](#TaskTemplate) for details.
+            service (string): A service identifier (either its name or service
+                ID).
+            version (int): The version number of the service object being
+                updated. This is required to avoid conflicting writes.
+            task_template (dict): Specification of the updated task to start
+                as part of the service. See the [TaskTemplate
+                class](#TaskTemplate) for details.
             name (string): New name for the service. Optional.
-            labels (dict): A map of labels to associate with the service. Optional.
-            mode (string): Scheduling mode for the service (``replicated`` or ``global``). Defaults to ``replicated``.
-            update_config (dict): Specification for the update strategy of the service. See the [UpdateConfig class](#UpdateConfig) for details. Default: ``None``.
-            networks (list): List of network names or IDs to attach the service to. Default: ``None``.
-            endpoint_config (dict): Properties that can be configured to access and load balance a service. Default: ``None``.
+            labels (dict): A map of labels to associate with the service.
+                Optional.
+            mode (string): Scheduling mode for the service (``replicated`` or
+                ``global``). Defaults to ``replicated``.
+            update_config (dict): Specification for the update strategy of the
+                service. See the [UpdateConfig class](#UpdateConfig) for
+                details. Default: ``None``.
+            networks (list): List of network names or IDs to attach the
+                service to. Default: ``None``.
+            endpoint_config (dict): Properties that can be configured to
+                access and load balance a service. Default: ``None``.
 
         Returns:
             ``True`` if successful.

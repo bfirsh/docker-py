@@ -9,7 +9,8 @@ class NetworkApiMixin(object):
     @minimum_version('1.21')
     def networks(self, names=None, ids=None):
         """
-        List networks currently registered by the docker daemon. Similar to the ``docker networks ls`` command.
+        List networks currently registered by the docker daemon. Similar to
+        the ``docker networks ls`` command.
 
         Args:
             names (list): List of names to filter by
@@ -36,16 +37,20 @@ class NetworkApiMixin(object):
                        check_duplicate=None, internal=False, labels=None,
                        enable_ipv6=False):
         """
-        Create a network, similar to the ``docker network create`` command. See the [networks documentation](networks.md) for details.
+        Create a network, similar to the ``docker network create`` command.
+        See the [networks documentation](networks.md) for details.
 
         Args:
             name (str): Name of the network
             driver (str): Name of the driver used to create the network
             options (dict): Driver options as a key-value dictionary
             ipam (dict): Optional custom IP scheme for the network
-            check_duplicate (bool): Request daemon to check for networks with same name. Default: ``True``.
-            internal (bool): Restrict external access to the network. Default ``False``.
-            labels (dict): Map of labels to set on the network. Default ``None``.
+            check_duplicate (bool): Request daemon to check for networks with
+                same name. Default: ``True``.
+            internal (bool): Restrict external access to the network. Default
+                ``False``.
+            labels (dict): Map of labels to set on the network. Default
+                ``None``.
             enable_ipv6 (bool): Enable IPv6 on the network. Default ``False``.
 
         Returns:
@@ -124,10 +129,16 @@ class NetworkApiMixin(object):
         Args:
             container (str): container-id/name to be connected to the network
             net_id (str): network id
-            aliases (list): A list of aliases for this endpoint. Names in that list can be used within the network to reach the container. Defaults to ``None``.
-            links (list): A list of links for this endpoint. Containers declared in this list will be [linked](https://docs.docker.com/engine/userguide/networking/work-with-networks/#linking-containers-in-user-defined-networks) to this container. Defaults to ``None``.
-            ipv4_address (str): The IP address of this container on the network, using the IPv4 protocol. Defaults to ``None``.
-            ipv6_address (str): The IP address of this container on the network, using the IPv6 protocol. Defaults to ``None``.
+            aliases (list): A list of aliases for this endpoint. Names in that
+                list can be used within the network to reach the container.
+                Defaults to ``None``.
+            links (list): A list of links for this endpoint. Containers
+                declared in this list will be linkedto this container.
+                Defaults to ``None``.
+            ipv4_address (str): The IP address of this container on the
+                network, using the IPv4 protocol. Defaults to ``None``.
+            ipv6_address (str): The IP address of this container on the
+                network, using the IPv6 protocol. Defaults to ``None``.
             link_local_ips (list): A list of link-local (IPv4/IPv6) addresses.
         """
         data = {
@@ -150,9 +161,11 @@ class NetworkApiMixin(object):
         Disconnect a container from a network.
 
         Args:
-            container (str): container ID or name to be disconnected from the network
+            container (str): container ID or name to be disconnected from the
+                network
             net_id (str): network ID
-            force (bool): Force the container to disconnect from a network. Default: ``False``
+            force (bool): Force the container to disconnect from a network.
+                Default: ``False``
         """
         data = {"Container": container}
         if force:

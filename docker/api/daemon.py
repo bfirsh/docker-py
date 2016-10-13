@@ -20,7 +20,8 @@ class DaemonApiMixin(object):
                 the fly. False by default.
 
         Returns:
-            (generator): A blocking generator you can iterate over to retrieve events as they happen.
+            (generator): A blocking generator you can iterate over to retrieve
+                events as they happen.
 
         Example:
 
@@ -55,7 +56,8 @@ class DaemonApiMixin(object):
 
     def info(self):
         """
-        Display system-wide information. Identical to the ``docker info`` command.
+        Display system-wide information. Identical to the ``docker info``
+        command.
 
         Returns:
             (dict): The info as a dict
@@ -71,8 +73,10 @@ class DaemonApiMixin(object):
             username (str): The registry username
             password (str): The plaintext password
             email (str): The email for the registry account
-            registry (str): URL to the registry.  E.g. ``https://index.docker.io/v1/``
-            reauth (bool): Whether refresh existing authentication on the Docker server.
+            registry (str): URL to the registry.  E.g.
+                ``https://index.docker.io/v1/``
+            reauth (bool): Whether refresh existing authentication on the
+                Docker server.
             dockercfg_path (str): Use a custom path for the ``.dockercfg`` file
         (default ``$HOME/.dockercfg``)
 
@@ -115,7 +119,8 @@ class DaemonApiMixin(object):
 
     def ping(self):
         """
-        Checks the server is responsive. An exception will be raised if it isn't responding.
+        Checks the server is responsive. An exception will be raised if it
+        isn't responding.
 
         Returns:
             (bool) The response from the server.
@@ -124,7 +129,8 @@ class DaemonApiMixin(object):
 
     def version(self, api_version=True):
         """
-        Returns version information from the server. Similar to the ``docker version`` command.
+        Returns version information from the server. Similar to the ``docker
+        version`` command.
 
         Returns:
             (dict): The server version information

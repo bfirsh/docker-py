@@ -21,7 +21,8 @@ class ImageApiMixin(object):
             image (str): Image name to get
 
         Returns:
-            (urllib3.response.HTTPResponse object): The response from the daemon
+            (urllib3.response.HTTPResponse object): The response from the
+                daemon
 
         Example:
 
@@ -56,8 +57,10 @@ class ImageApiMixin(object):
         Args:
             name (str): Only show images belonging to the repository ``name``
             quiet (bool): Only return numeric IDs as a list.
-            all (bool): Show all images (by default filter out the intermediate image layers)
-            filters (dict): Filters to be processed on the image list. Available filters:
+            all (bool): Show all images (by default filter out the
+                intermediate image layers)
+            filters (dict): Filters to be processed on the image list.
+                Available filters:
                 - ``dangling`` (bool)
                 - ``label`` (str): format either ``key`` or ``key=value``
 
@@ -86,15 +89,21 @@ class ImageApiMixin(object):
         """
         Import an image. Similar to the ``docker import`` command.
 
-        If ``src`` is a string or unicode string, it will first be treated as a path to a tarball on the local system. If there is an error reading from that file, ``src`` will be treated as a URL instead to fetch the image from. You can also pass an open file handle as ``src``, in which case the data will be read from that file.
+        If ``src`` is a string or unicode string, it will first be treated as a
+        path to a tarball on the local system. If there is an error reading
+        from that file, ``src`` will be treated as a URL instead to fetch the
+        image from. You can also pass an open file handle as ``src``, in which
+        case the data will be read from that file.
 
-        If ``src`` is unset but ``image`` is set, the ``image`` parameter will be taken as the name of an existing image to import from.
+        If ``src`` is unset but ``image`` is set, the ``image`` parameter will
+        be taken as the name of an existing image to import from.
 
         Args:
             src (str or file): Path to tarfile, URL, or file-like object
             repository (str): The repository to create
             tag (str): The tag to apply
-            image (str): Use another image like the ``FROM`` Dockerfile parameter
+            image (str): Use another image like the ``FROM`` Dockerfile
+                parameter
         """
         if not (src or image):
             raise errors.DockerException(
@@ -130,7 +139,8 @@ class ImageApiMixin(object):
     def import_image_from_data(self, data, repository=None, tag=None,
                                changes=None):
         """
-        Like :py:meth:`~docker.api.image.ImageApiMixin.import_image`, but allows importing in-memory bytes data.
+        Like :py:meth:`~docker.api.image.ImageApiMixin.import_image`, but
+        allows importing in-memory bytes data.
 
         Args:
             data (bytes collection): Bytes collection containing valid tar data
@@ -152,7 +162,8 @@ class ImageApiMixin(object):
     def import_image_from_file(self, filename, repository=None, tag=None,
                                changes=None):
         """
-        Like :py:meth:`~docker.api.image.ImageApiMixin.import_image`, but only supports importing from a tar file on disk.
+        Like :py:meth:`~docker.api.image.ImageApiMixin.import_image`, but only
+        supports importing from a tar file on disk.
 
         Args:
             filename (str): Full path to a tar file.
@@ -177,7 +188,8 @@ class ImageApiMixin(object):
     def import_image_from_url(self, url, repository=None, tag=None,
                               changes=None):
         """
-        Like :py:meth:`~docker.api.image.ImageApiMixin.import_image`, but only supports importing from a URL.
+        Like :py:meth:`~docker.api.image.ImageApiMixin.import_image`, but only
+        supports importing from a URL.
 
         Args:
             url (str): A URL pointing to a tar file.
@@ -191,7 +203,9 @@ class ImageApiMixin(object):
     def import_image_from_image(self, image, repository=None, tag=None,
                                 changes=None):
         """
-        Like :py:meth:`~docker.api.image.ImageApiMixin.import_image`, but only supports importing from another image, like the ``FROM`` Dockerfile parameter.
+        Like :py:meth:`~docker.api.image.ImageApiMixin.import_image`, but only
+        supports importing from another image, like the ``FROM`` Dockerfile
+        parameter.
 
         Args:
             image (str): Image name to import from
@@ -218,7 +232,8 @@ class ImageApiMixin(object):
     @utils.check_resource
     def inspect_image(self, image):
         """
-        Get detailed information about an image. Similar to the ``docker inspect`` command, but only for containers.
+        Get detailed information about an image. Similar to the ``docker
+        inspect`` command, but only for containers.
 
         Args:
             container (str): The container to inspect
@@ -233,7 +248,9 @@ class ImageApiMixin(object):
 
     def load_image(self, data):
         """
-        Load an image that was previously saved using :py:meth:`~docker.api.image.ImageApiMixin.get_image` (or ``docker save``). Similar to ``docker load``.
+        Load an image that was previously saved using
+        :py:meth:`~docker.api.image.ImageApiMixin.get_image` (or ``docker
+        save``). Similar to ``docker load``.
 
         Args:
             data (binary): Image data to be loaded
@@ -251,7 +268,10 @@ class ImageApiMixin(object):
             tag (str): The tag to pull
             stream (bool): Stream the output as a generator
             insecure_registry (bool): Use an insecure registry
-            auth_config (dict): Override the credentials that :py:meth:`~docker.api.daemon.DaemonApiMixin.login` has set for this request. ``auth_config`` should contain the ``username`` and ``password`` keys to be valid.
+            auth_config (dict): Override the credentials that
+                :py:meth:`~docker.api.daemon.DaemonApiMixin.login` has set for
+                this request. ``auth_config`` should contain the ``username``
+                and ``password`` keys to be valid.
 
         Returns:
             (generator or str): The output
@@ -312,14 +332,19 @@ class ImageApiMixin(object):
     def push(self, repository, tag=None, stream=False,
              insecure_registry=False, auth_config=None, decode=False):
         """
-        Push an image or a repository to the registry. Similar to the ``docker push`` command.
+        Push an image or a repository to the registry. Similar to the ``docker
+        push`` command.
 
         Args:
             repository (str): The repository to push to
             tag (str): An optional tag to push
             stream (bool): Stream the output as a blocking generator
-            insecure_registry (bool): Use ``http://`` to connect to the registry
-            auth_config (dict): Override the credentials that :py:meth:`~docker.api.daemon.DaemonApiMixin.login` has set for this request. ``auth_config`` should contain the ``username`` and ``password`` keys to be valid.
+            insecure_registry (bool): Use ``http://`` to connect to the
+                registry
+            auth_config (dict): Override the credentials that
+                :py:meth:`~docker.api.daemon.DaemonApiMixin.login` has set for
+                this request. ``auth_config`` should contain the ``username``
+                and ``password`` keys to be valid.
 
         Returns:
             (generator or str): The output of the upload
@@ -332,8 +357,6 @@ class ImageApiMixin(object):
             {"status":"Image already pushed, skipping","progressDetail":{},
         "id":"511136ea3c5a"}
             ...
-            {"status":"Pushing tag for rev [918af568e6e5] on {https://cdn-registry-1.docker.io/v1/repositories/
-        yourname/app/tags/latest}"}
 
         """
         if insecure_registry:
@@ -387,7 +410,8 @@ class ImageApiMixin(object):
 
     def search(self, term):
         """
-        Search for images on Docker Hub. Similar to the ``docker search`` command.
+        Search for images on Docker Hub. Similar to the ``docker search``
+        command.
 
         Args:
             term (str): A term to search for

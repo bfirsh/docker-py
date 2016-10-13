@@ -6,13 +6,15 @@ class VolumeApiMixin(object):
     @utils.minimum_version('1.21')
     def volumes(self, filters=None):
         """
-        List volumes currently registered by the docker daemon. Similar to the ``docker volume ls`` command.
+        List volumes currently registered by the docker daemon. Similar to the
+        ``docker volume ls`` command.
 
         Args:
             filters (dict): Server-side list filtering options.
 
         Returns:
-            (dict): Dictionary with list of volume objects as value of the ``Volumes`` key.
+            (dict): Dictionary with list of volume objects as value of the
+            ``Volumes`` key.
 
         Example:
 

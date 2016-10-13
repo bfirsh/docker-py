@@ -13,11 +13,15 @@ class ExecApiMixin(object):
         Sets up an exec instance in a running container.
 
         Args:
-            container (str): Target container where exec instance will be created
+            container (str): Target container where exec instance will be
+                created
             cmd (str or list): Command to be executed
-            stdout (bool): Attach to stdout of the exec command if true. Default: True
-            stderr (bool): Attach to stderr of the exec command if true. Default: True
-            since (UTC datetime or int): Output logs from this timestamp. Default: ``None`` (all logs are given)
+            stdout (bool): Attach to stdout of the exec command if true.
+                Default: True
+            stderr (bool): Attach to stderr of the exec command if true.
+                Default: True
+            since (UTC datetime or int): Output logs from this timestamp.
+                Default: ``None`` (all logs are given)
             tty (bool): Allocate a pseudo-TTY. Default: False
             user (str): User to execute command as. Default: root
 
@@ -94,12 +98,14 @@ class ExecApiMixin(object):
 
         Args:
             exec_id (str): ID of the exec instance
-            detach (bool): If true, detach from the exec command. Default: False
+            detach (bool): If true, detach from the exec command.
+                Default: False
             tty (bool): Allocate a pseudo-TTY. Default: False
             stream (bool): Stream response data. Default: False
 
         Returns:
-            (generator or str): If ``stream=True``, a generator yielding response chunks. A string containing response data otherwise.
+            (generator or str): If ``stream=True``, a generator yielding
+            response chunks. A string containing response data otherwise.
         """
         # we want opened socket if socket == True
         if isinstance(exec_id, dict):

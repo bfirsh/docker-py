@@ -20,14 +20,14 @@ class BuildApiMixin(object):
               decode=False, buildargs=None, gzip=False):
         """
         Similar to the ``docker build`` command. Either ``path`` or ``fileobj``
-        needs to be set. ``path`` can be a local path (to a directory containing
-        a Dockerfile) or a remote URL. ``fileobj`` must be a readable file-like
-        object to a Dockerfile.
+        needs to be set. ``path`` can be a local path (to a directory
+        containing a Dockerfile) or a remote URL. ``fileobj`` must be a
+        readable file-like object to a Dockerfile.
 
         If you have a tar file for the Docker build context (including a
-        Dockerfile) already, pass a readable file-like object to ``fileobj`` and
-        also pass ``custom_context=True``. If the stream is compressed also, set
-        ``encoding`` to the correct value (e.g ``gzip``).
+        Dockerfile) already, pass a readable file-like object to ``fileobj``
+        and also pass ``custom_context=True``. If the stream is compressed
+        also, set ``encoding`` to the correct value (e.g ``gzip``).
 
         Example:
             >>> from io import BytesIO
