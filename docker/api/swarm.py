@@ -7,6 +7,36 @@ log = logging.getLogger(__name__)
 class SwarmApiMixin(object):
 
     def create_swarm_spec(self, *args, **kwargs):
+        """
+        Create a ``docker.types.SwarmSpec`` instance that can be used as the
+        ``swarm_spec`` argument in
+        :py:meth:`~docker.api.swarm.SwarmApiMixin.init_swarm`.
+
+        Args:
+            task_history_retention_limit (int): Maximum number of tasks
+                history stored.
+            snapshot_interval (int): Number of logs entries between snapshot.
+            keep_old_snapshots (int): Number of snapshots to keep beyond the
+                current
+        snapshot.
+            log_entries_for_slow_followers (int): Number of log entries to
+                keep around to sync up slow followers after a snapshot is
+                created.
+            heartbeat_tick (int): Amount of ticks (in seconds) between each
+                heartbeat.
+            election_tick (int): Amount of ticks (in seconds) needed without a
+                leader to trigger a new election.
+            dispatcher_heartbeat_period (int):  The delay for an agent to send
+                a heartbeat to the dispatcher.
+            node_cert_expiry (int): Automatic expiry for nodes certificates.
+            external_ca (dict): Configuration for forwarding signing requests
+                to an external certificate authority. Use
+                ``docker.types.SwarmExternalCA``.
+            name (string): Swarm's name
+
+        Returns:
+            ``docker.types.SwarmSpec`` instance.
+        """
         return utils.SwarmSpec(*args, **kwargs)
 
     @utils.minimum_version('1.24')
@@ -59,18 +89,55 @@ class SwarmApiMixin(object):
 
     @utils.minimum_version('1.24')
     def inspect_swarm(self):
+        """
+        Retrieve low-level information about the current swarm.
+
+        Returns:
+            A dictionary containing data about the swarm.
+        """
         url = self._url('/swarm')
         return self._result(self._get(url), True)
 
     @utils.check_resource
     @utils.minimum_version('1.24')
     def inspect_node(self, node_id):
+        """
+        Retrieve low-level information about a swarm node
+
+        Args:
+            node_id (string): ID of the node to be inspected.
+
+        Returns:
+            A dictionary containing data about this node.
+        """
         url = self._url('/nodes/{0}', node_id)
         return self._result(self._get(url), True)
 
     @utils.minimum_version('1.24')
     def join_swarm(self, remote_addrs, join_token, listen_addr=None,
                    advertise_addr=None):
+        """
+        Join an existing Swarm.
+
+        Args:
+            remote_addrs (list): Addresses of one or more manager nodes already
+                participating in the Swarm to join.
+            join_token (string): Secret token for joining this Swarm.
+            listen_addr (string): Listen address used for inter-manager
+                communication if the node gets promoted to manager, as well as
+                determining the networking interface used for the VXLAN Tunnel
+                Endpoint (VTEP). Default: ``None``
+            advertise_addr (string): Externally reachable address advertised
+                to other nodes. This can either be an address/port combination
+                in the form ``192.168.1.1:4567``, or an interface followed by a
+                port number, like ``eth0:4567``. If the port number is omitted,
+                the port number from the listen address is used. If
+                AdvertiseAddr is not specified, it will be automatically
+                detected when possible. Default: ``None``
+
+        Returns:
+            ``True`` if the request went through.
+        """
         data = {
             "RemoteAddrs": remote_addrs,
             "ListenAddr": listen_addr,
@@ -84,6 +151,20 @@ class SwarmApiMixin(object):
 
     @utils.minimum_version('1.24')
     def leave_swarm(self, force=False):
+        """
+        Leave a Swarm.
+
+        Args:
+            force (bool): Leave the Swarm even if this node is a manager.
+                Default: ``False``
+
+        Returns:
+            ``True`` if the request went through.
+
+        Raises:
+            ``APIError`` On failure.
+
+        """
         url = self._url('/swarm/leave')
         response = self._post(url, params={'force': force})
         # Ignore "this node is not part of a swarm" error
@@ -94,6 +175,17 @@ class SwarmApiMixin(object):
 
     @utils.minimum_version('1.24')
     def nodes(self, filters=None):
+        """
+        List Swarm nodes
+
+        Args:
+            filters (dict): Filters to process on the nodes list. Valid
+                filters: ``id``, ``name``, ``membership`` and ``role``.
+                Default: ``None``
+
+        Returns:
+            A list of dictionaries containing data about each swarm node.
+        """
         url = self._url('/nodes')
         params = {}
         if filters:
@@ -111,6 +203,27 @@ class SwarmApiMixin(object):
     @utils.minimum_version('1.24')
     def update_swarm(self, version, swarm_spec=None, rotate_worker_token=False,
                      rotate_manager_token=False):
+        """
+        Update the Swarm's configuration
+
+        Args:
+            version (int): The version number of the swarm object being
+                updated. This is required to avoid conflicting writes.
+            swarm_spec (dict): Configuration settings to update. Use
+                :py:meth:`~docker.api.swarm.SwarmApiMixin.create_swarm_spec` to
+                generate a valid configuration. Default: ``None``.
+            rotate_worker_token (bool): Rotate the worker join token. Default:
+                ``False``.
+            rotate_manager_token (bool): Rotate the manager join token.
+                Default: ``False``.
+
+        Returns:
+            ``True`` if the request went through.
+
+        Raises:
+            ``APIError`` On failure.
+        """
+
         url = self._url('/swarm/update')
         response = self._post_json(url, data=swarm_spec, params={
             'rotateWorkerToken': rotate_worker_token,
