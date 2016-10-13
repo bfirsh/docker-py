@@ -347,3 +347,8 @@ texinfo_documents = [
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #
 # texinfo_no_detailmenu = False
+
+
+# Napoleon settings
+napoleon_google_docstring = True
+napoleon_numpy_docstring = False

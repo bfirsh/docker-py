@@ -12,6 +12,22 @@ class SwarmApiMixin(object):
     @utils.minimum_version('1.24')
     def init_swarm(self, advertise_addr=None, listen_addr='0.0.0.0:2377',
                    force_new_cluster=False, swarm_spec=None):
+        """
+        Initialize a new Swarm using the current connected engine as the first node.
+
+        Args:
+            advertise_addr (string): Externally reachable address advertised to other nodes. This can either be an address/port combination in the form ``192.168.1.1:4567``, or an interface followed by a port number, like ``eth0:4567``. If the port number is omitted, the port number from the listen address is used. If ``advertise_addr`` is not specified, it will be automatically detected when possible. Default: None
+            listen_addr (string): Listen address used for inter-manager communication, as well as determining the networking interface used for the VXLAN Tunnel Endpoint (VTEP). This can either be an address/port combination in the form ``192.168.1.1:4567``, or an interface followed by a port number, like ``eth0:4567``. If the port number is omitted, the default swarm listening port is used. Default: '0.0.0.0:2377'
+            force_new_cluster (bool): Force creating a new Swarm, even if already part of one. Default: False
+            swarm_spec (dict): Configuration settings of the new Swarm. Use ``Client.create_swarm_spec`` to generate a valid configuration. Default: None
+
+        Returns:
+            ``True`` if successful.
+
+        Raises:
+            `py:class:`docker.errors.APIError`: If not successful.
+        """
+
         url = self._url('/swarm/init')
         if swarm_spec is not None and not isinstance(swarm_spec, dict):
             raise TypeError('swarm_spec must be a dictionary')

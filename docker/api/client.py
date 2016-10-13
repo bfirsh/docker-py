@@ -46,8 +46,25 @@ class APIClient(
     """
     A low-level client for the Docker Remote API.
 
-    Each method maps one-to-one with a REST API endpoint, so calling each
-    method results in a single API call.
+    The main object-orientated API is built on top of ``APIClient``. If you
+    need some extra flexibility and power, it's possible to use ``APIClient``
+    directly. Each method maps one-to-one with a REST API endpoint, and returns
+    the response that the API responds with.
+
+    Example:
+
+        >>> import docker
+        >>> client = docker.APIClient(base_url='unix://var/run/docker.sock')
+        >>> client.version()
+        {u'ApiVersion': u'1.24',
+         u'Arch': u'amd64',
+         u'BuildTime': u'2016-09-27T23:38:15.810178467+00:00',
+         u'Experimental': True,
+         u'GitCommit': u'45bed2c',
+         u'GoVersion': u'go1.6.3',
+         u'KernelVersion': u'4.4.22-moby',
+         u'Os': u'linux',
+         u'Version': u'1.12.2-rc1'}
 
     Args:
         base_url (str): URL to the Docker server, e.g.

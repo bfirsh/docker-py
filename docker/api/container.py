@@ -87,7 +87,7 @@ class ContainerApiMixin(object):
     def commit(self, container, repository=None, tag=None, message=None,
                author=None, changes=None, conf=None):
         """
-        Identical to the `docker commit` command.
+        Identical to the ``docker commit`` command.
 
         Args:
             container (str): The image hash of the container
@@ -176,6 +176,20 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def copy(self, container, resource):
+        """
+        Identical to the ``docker cp`` command. Get files/folders from the
+        container.
+
+        **Deprecated for API version >= 1.20.** Use
+        :py:meth:`~ContainerApiMixin.get_archive` instead.
+
+        Args:
+            container (str): The container to copy from
+            resource (str): The path within the container
+
+        Returns:
+            The contents of the file as a string
+        """
         if utils.version_gte(self._version, '1.20'):
             warnings.warn(
                 'Client.copy() is deprecated for API version >= 1.20, '
@@ -199,7 +213,155 @@ class ContainerApiMixin(object):
                          memswap_limit=None, cpuset=None, host_config=None,
                          mac_address=None, labels=None, volume_driver=None,
                          stop_signal=None, networking_config=None):
+        """
+        Creates a container that can then be started with
+        ``~ContainerApiMixin.start``. Parameters are similar to
+        those for the ``docker run`` command except it doesn't support the
+        attach options (``-a``).
 
+        **Port bindings**
+
+        Port binding is done in two parts: first, provide a list of ports to
+        open inside the container with the ``ports`` parameter, then declare
+        bindings with the ``host_config`` parameter. For example:
+
+        .. code-block:: python
+
+            container_id = cli.create_container(
+                'busybox', 'ls', ports=[1111, 2222],
+                host_config=cli.create_host_config(port_bindings={
+                    1111: 4567,
+                    2222: None
+                })
+            )
+
+
+        You can limit the host address on which the port will be exposed like
+        such:
+
+        .. code-block:: python
+
+            cli.create_host_config(port_bindings={1111: ('127.0.0.1', 4567)})
+
+        Or without host port assignment:
+
+        .. code-block:: python
+
+            cli.create_host_config(port_bindings={1111: ('127.0.0.1',)})
+
+        If you wish to use UDP instead of TCP (default), you need to declare
+        ports as such in both the config and host config:
+
+        .. code-block:: python
+
+            container_id = cli.create_container(
+                'busybox', 'ls', ports=[(1111, 'udp'), 2222],
+                host_config=cli.create_host_config(port_bindings={
+                    '1111/udp': 4567, 2222: None
+                })
+            )
+
+        To bind multiple host ports to a single container port, use the
+        following syntax:
+
+        .. code-block:: python
+
+            cli.create_host_config(port_bindings={
+                1111: [1234, 4567]
+            })
+
+        You can also bind multiple IPs to a single container port:
+
+        .. code-block:: python
+
+            cli.create_host_config(port_bindings={
+                1111: [
+                    ('192.168.0.100', 1234),
+                    ('192.168.0.101', 1234)
+                ]
+            })
+
+        **Using volumes**
+
+        Volume declaration is done in two parts. Provide a list of mountpoints
+        to the with the ``volumes`` parameter, and declare mappings in the
+        ``host_config`` section.
+
+        .. code-block:: python
+
+            container_id = cli.create_container(
+                'busybox', 'ls', volumes=['/mnt/vol1', '/mnt/vol2'],
+                host_config=cli.create_host_config(binds={
+                    '/home/user1/': {
+                        'bind': '/mnt/vol2',
+                        'mode': 'rw',
+                    },
+                    '/var/www': {
+                        'bind': '/mnt/vol1',
+                        'mode': 'ro',
+                    }
+                })
+            )
+
+        You can alternatively specify binds as a list. This code is equivalent
+        to the example above:
+
+        .. code-block:: python
+
+            container_id = cli.create_container(
+                'busybox', 'ls', volumes=['/mnt/vol1', '/mnt/vol2'],
+                host_config=cli.create_host_config(binds=[
+                    '/home/user1/:/mnt/vol2',
+                    '/var/www:/mnt/vol1:ro',
+                ])
+            )
+
+        Args:
+            image (str): The image to run
+            command (str or list): The command to be run in the container
+            hostname (str): Optional hostname for the container
+            user (str or int): Username or UID
+            detach (bool): Detached mode: run container in the background and
+                return container ID
+            stdin_open (bool): Keep STDIN open even if not attached
+            tty (bool): Allocate a pseudo-TTY
+            mem_limit (float or str): Memory limit. Accepts float values (which
+                represent the memory limit of the created container in bytes)
+                or a string with a units identification char (``100000b``,
+                ``1000k``, ``128m``, ``1g``). If a string is specified without
+                a units character, bytes are assumed as an intended unit.
+            ports (list of ints): A list of port numbers
+            environment (dict or list): A dictionary or a list of strings in
+                the following format ``["PASSWORD=xxx"]`` or
+                ``{"PASSWORD": "xxx"}``.
+            dns (list): DNS name servers. Deprecated since API version 1.10.
+                Use ``host_config`` instead.
+            dns_opt (list): Additional options to be added to the container's
+                ``resolv.conf`` file
+            volumes (str or list):
+            volumes_from (list): List of container names or Ids to get
+                volumes from.
+            network_disabled (bool): Disable networking
+            name (str): A name for the container
+            entrypoint (str or list): An entrypoint
+            working_dir (str): Path to the working directory
+            domainname (str or list): Set custom DNS search domains
+            memswap_limit (int):
+            host_config (dict): A [HostConfig](hostconfig.md) dictionary
+            mac_address (str): The Mac Address to assign the container
+            labels (dict or list): A dictionary of name-value labels (e.g.
+                ``{"label1": "value1", "label2": "value2"}``) or a list of
+                names of labels to set with empty values (e.g.
+                ``["label1", "label2"]``)
+            volume_driver (str): The name of a volume driver/plugin.
+            stop_signal (str): The stop signal to use to stop the container
+                (e.g. ``SIGINT``).
+            networking_config (dict): A [NetworkingConfig](networks.md)
+                dictionary
+
+        Returns:
+            A dictionary with an image 'Id' key and a 'Warnings' key.
+        """
         if isinstance(volumes, six.string_types):
             volumes = [volumes, ]
 
@@ -247,12 +409,30 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def diff(self, container):
+        """
+        Inspect changes on a container's filesystem.
+
+        Args:
+            container (str): The container to diff
+
+        Returns:
+            (str)
+        """
         return self._result(
             self._get(self._url("/containers/{0}/changes", container)), True
         )
 
     @utils.check_resource
     def export(self, container):
+        """
+        Export the contents of a filesystem as a tar archive to STDOUT.
+
+        Args:
+            container (str): The container to export
+
+        Returns:
+            (str): The filesystem tar archive
+        """
         res = self._get(
             self._url("/containers/{0}/export", container), stream=True
         )
@@ -262,6 +442,18 @@ class ContainerApiMixin(object):
     @utils.check_resource
     @utils.minimum_version('1.20')
     def get_archive(self, container, path):
+        """
+        Retrieve a file or folder from a container in the form of a tar
+        archive.
+
+        Args:
+            container (str): The container where the file is located
+            path (str): Path to the file or folder to retrieve
+
+        Returns:
+            (tuple): First element is a raw tar data stream. Second element is
+            a dict containing ``stat`` information on the specified ``path``.
+        """
         params = {
             'path': path
         }
@@ -276,12 +468,29 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def inspect_container(self, container):
+        """
+        Identical to the `docker inspect` command, but only for containers.
+
+        Args:
+            container (str): The container to inspect
+
+        Returns:
+            (dict): Similar to the output of `docker inspect`, but as a
+            single dict
+        """
         return self._result(
             self._get(self._url("/containers/{0}/json", container)), True
         )
 
     @utils.check_resource
     def kill(self, container, signal=None):
+        """
+        Kill a container or send a signal to a container.
+
+        Args:
+            container (str): The container to kill
+            signal (str or int): The signal to send. Defaults to ``SIGKILL``
+        """
         url = self._url("/containers/{0}/kill", container)
         params = {}
         if signal is not None:
@@ -295,6 +504,27 @@ class ContainerApiMixin(object):
     @utils.check_resource
     def logs(self, container, stdout=True, stderr=True, stream=False,
              timestamps=False, tail='all', since=None, follow=None):
+        """
+        Identical to the ``docker logs`` command. The ``stream`` parameter
+        makes the ``logs`` function return a blocking generator you can iterate
+        over to retrieve log output as it happens.
+
+        Args:
+            container (str): The container to get logs from
+            stdout (bool): Get STDOUT
+            stderr (bool): Get STDERR
+            stream (bool): Stream the response
+            timestamps (bool): Show timestamps
+            tail (str or int): Output specified number of lines at the end of
+                logs. Either an integer of number of lines or the string
+                ``all``. Default ``all``
+            since (datetime or int): Show logs since a given datetime or
+                integer epoch (in seconds)
+            follow (bool): Follow log output
+
+        Returns:
+            (generator or str)
+        """
         if utils.compare_version('1.11', self._version) >= 0:
             if follow is None:
                 follow = stream
@@ -331,12 +561,40 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def pause(self, container):
+        """
+        Pauses all processes within a container.
+
+        Args:
+            container (str): The container to pause
+        """
         url = self._url('/containers/{0}/pause', container)
         res = self._post(url)
         self._raise_for_status(res)
 
     @utils.check_resource
     def port(self, container, private_port):
+        """
+        Lookup the public-facing port that is NAT-ed to ``private_port``.
+        Identical to the ``docker port`` command.
+
+        Args:
+            container (str): The container to look up
+            private_port (int): The private port to inspect
+
+        Returns:
+            (list of dict): The mapping for the host ports
+
+        Example:
+            .. code-block:: bash
+
+                $ docker run -d -p 80:80 ubuntu:14.04 /bin/sleep 30
+                7174d6347063a83f412fad6124c99cffd25ffe1a0807eb4b7f9cec76ac8cb43b
+
+            .. code-block:: python
+
+                >>> cli.port('7174d6347063', 80)
+                [{'HostIp': '0.0.0.0', 'HostPort': '80'}]
+        """
         res = self._get(self._url("/containers/{0}/json", container))
         self._raise_for_status(res)
         json_ = res.json()
@@ -361,6 +619,21 @@ class ContainerApiMixin(object):
     @utils.check_resource
     @utils.minimum_version('1.20')
     def put_archive(self, container, path, data):
+        """
+        Insert a file or folder in an existing container using a tar archive as
+        source.
+
+        Args:
+            container (str): The container where the file(s) will be extracted
+            path (str): Path inside the container where the file(s) will be
+                extracted. Must exist.
+            data (bytes): tar data to be extracted
+
+        Returns:
+            (bool): True if the call succeeds.
+            :py:class:`~docker.errors.APIError` will be raised if an error
+            occurs.
+        """
         params = {'path': path}
         url = self._url('/containers/{0}/archive', container)
         res = self._put(url, params=params, data=data)
@@ -369,6 +642,15 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def remove_container(self, container, v=False, link=False, force=False):
+        """
+        Remove a container. Similar to the ``docker rm`` command.
+
+        Args:
+            container (str): The container to remove
+            v (bool): Remove the volumes associated with the container
+            link (bool): Remove the specified link and not the underlying container
+            force (bool): Force the removal of a running container (uses SIGKILL)
+        """
         params = {'v': v, 'link': link, 'force': force}
         res = self._delete(
             self._url("/containers/{0}", container), params=params
@@ -378,6 +660,13 @@ class ContainerApiMixin(object):
     @utils.minimum_version('1.17')
     @utils.check_resource
     def rename(self, container, name):
+        """
+        Rename a container. Similar to the ``docker rename`` command.
+
+        Args:
+            container (str): ID of the container to rename
+            name (str): New name for the container
+        """
         url = self._url("/containers/{0}/rename", container)
         params = {'name': name}
         res = self._post(url, params=params)
@@ -385,6 +674,14 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def resize(self, container, height, width):
+        """
+        Resize the tty session.
+
+        Args:
+            container (str or dict): The container to resize
+            height (int): Height of tty session
+            width (int): Width of tty session
+        """
         params = {'h': height, 'w': width}
         url = self._url("/containers/{0}/resize", container)
         res = self._post(url, params=params)
@@ -392,6 +689,13 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def restart(self, container, timeout=10):
+        """
+        Restart a container. Similar to the ``docker restart`` command.
+
+        Args:
+            container (str or dict): The container to restart. If a dict, the ``Id`` key is used.
+            timeout (int): Number of seconds to try to stop for before killing the container. Once killed it will then be restarted. Default is 10 seconds.
+        """
         params = {'t': timeout}
         url = self._url("/containers/{0}/restart", container)
         res = self._post(url, params=params)
@@ -404,7 +708,21 @@ class ContainerApiMixin(object):
               restart_policy=None, cap_add=None, cap_drop=None, devices=None,
               extra_hosts=None, read_only=None, pid_mode=None, ipc_mode=None,
               security_opt=None, ulimits=None):
+        """
+        Similar to the ``docker start`` command, but doesn't support attach options. Use ``.logs()`` to recover ``stdout`` and ``stderr``.
 
+        **Deprecation warning:** For API version > 1.15, it is highly recommended to provide host config options in the ``host_config`` parameter of :py:meth:`~ContainerApiMixin.create_container`.
+
+        Args:
+            container (str): The container to start
+
+        Example:
+
+            >>> container = cli.create_container(
+            ...     image='busybox:latest',
+            ...     command='/bin/sleep 30')
+            >>> cli.start(container=container.get('Id'))
+        """
         if utils.compare_version('1.10', self._version) < 0:
             if dns is not None:
                 raise errors.InvalidVersion(
@@ -468,6 +786,21 @@ class ContainerApiMixin(object):
     @utils.minimum_version('1.17')
     @utils.check_resource
     def stats(self, container, decode=None, stream=True):
+        """
+        Stream statistics for a specific container. Similar to the
+        ``docker stats`` command.
+
+        Args:
+            container (str): The container to stream statistics from
+            decode (bool): If set to true, stream will be decoded into dicts on the fly. False by default.
+            stream (bool): If set to false, only the current stats will be returned instead of a stream. True by default.
+
+        Example:
+
+            >>> for stat in cli.stats('elasticsearch'):
+            >>>     print(stat)
+            {"read":"2015-02-11T21:47:30.49388286+02:00","networks":{"eth0":{"rx_bytes":648,"rx_packets":8 ...
+        """
         url = self._url("/containers/{0}/stats", container)
         if stream:
             return self._stream_helper(self._get(url, stream=True),
@@ -478,6 +811,13 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def stop(self, container, timeout=10):
+        """
+        Stops a container. Similar to the ``docker stop`` command.
+
+        Args:
+            container (str): The container to stop
+            timeout (int): Timeout in seconds to wait for the container to stop before sending a ``SIGKILL``. Default: 10
+        """
         params = {'t': timeout}
         url = self._url("/containers/{0}/stop", container)
 
@@ -487,6 +827,16 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def top(self, container, ps_args=None):
+        """
+        Display the running processes of a container.
+
+        Args:
+            container (str): The container to inspect
+            ps_args (str): An optional arguments passed to ps (e.g. ``aux``)
+
+        Returns:
+            (str): The output of the top
+        """
         u = self._url("/containers/{0}/top", container)
         params = {}
         if ps_args is not None:
@@ -495,6 +845,12 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def unpause(self, container):
+        """
+        Unpause all processes within a container.
+
+        Args:
+            container (str): The container to unpause
+        """
         url = self._url('/containers/{0}/unpause', container)
         res = self._post(url)
         self._raise_for_status(res)
@@ -507,6 +863,26 @@ class ContainerApiMixin(object):
         mem_reservation=None, memswap_limit=None, kernel_memory=None,
         restart_policy=None
     ):
+        """
+        Update resource configs of one or more containers.
+
+        Args:
+            container (str): The container to inspect
+            blkio_weight (int): Block IO (relative weight), between 10 and 1000
+            cpu_period (int): Limit CPU CFS (Completely Fair Scheduler) period
+            cpu_quota (int): Limit CPU CFS (Completely Fair Scheduler) quota
+            cpu_shares (int): CPU shares (relative weight)
+            cpuset_cpus (str): CPUs in which to allow execution
+            cpuset_mems (str): MEMs in which to allow execution
+            mem_limit (int or str): Memory limit
+            mem_reservation (int or str): Memory soft limit
+            memswap_limit (int or str): Total memory (memory + swap), -1 to disable swap
+            kernel_memory (int or str): Kernel memory limit
+            restart_policy (dict): Restart policy dictionary
+
+        Returns:
+            (dict): Dictionary containing a ``Warnings`` key.
+        """
         url = self._url('/containers/{0}/update', container)
         data = {}
         if blkio_weight:
@@ -542,6 +918,20 @@ class ContainerApiMixin(object):
 
     @utils.check_resource
     def wait(self, container, timeout=None):
+        """
+        Identical to the ``docker wait`` command. Block until a container stops, then return its exit code.
+
+        Args:
+            container (str or dict): The container to wait on. If a dict, the ``Id`` key is used.
+            timeout (int): Request timeout
+
+        Returns:
+            (int): The exit code of the container. Returns ``-1`` if the API responds without a ``StatusCode`` attribute.
+
+        Raises:
+            requests.exceptions.ReadTimeout: If the timeout is exceeded.
+        """
+
         url = self._url("/containers/{0}/wait", container)
         res = self._post(url, timeout=timeout)
         self._raise_for_status(res)
