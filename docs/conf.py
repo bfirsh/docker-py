@@ -16,6 +16,7 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
+import datetime
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
@@ -59,8 +60,9 @@ source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
 # General information about the project.
-project = u'docker-sdk-python'
-copyright = u'2016, Docker Inc.'
+project = u'Docker SDK for Python'
+year = datetime.datetime.now().year
+copyright = u'%d Docker Inc.' % year
 author = u'Docker Inc.'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -136,7 +138,10 @@ html_theme = 'alabaster'
 # further.  For a list of options available for each theme, see the
 # documentation.
 #
-# html_theme_options = {}
+html_theme_options = {
+    'description': 'A Python library for the Docker Remote API',
+    'fixed_sidebar': True,
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
@@ -185,7 +190,13 @@ html_static_path = ['_static']
 
 # Custom sidebar templates, maps document names to template names.
 #
-# html_sidebars = {}
+html_sidebars = {
+    '**': [
+        'about.html',
+        'navigation.html',
+        'searchbox.html',
+    ]
+}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.

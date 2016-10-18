@@ -1,20 +1,80 @@
-.. docker-sdk-python documentation master file, created by
-   sphinx-quickstart on Wed Sep 14 15:48:58 2016.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+Docker SDK for Python
+=====================
 
-Welcome to docker-sdk-python's documentation!
-=============================================
+A Python library for the Docker Remote API. It lets you do anything the ``docker`` command does, but from within Python apps – run containers, manage containers, manage Swarms, etc.
+
+For more information about the Remote API, `see its documentation <https://docs.docker.com/engine/reference/api/docker_remote_api/>`_.
+
+Installation
+------------
+
+The latest stable version `is available on PyPi <https://pypi.python.org/pypi/docker/>`_. Either add ``docker`` to your ``requirements.txt`` file or install with pip::
+
+    pip install docker
+
+Getting started
+---------------
+
+Connect to Docker using the default socket or the configuration in your environment:
+
+.. code-block:: python
+
+  import docker
+  client = docker.from_env()
+
+You can run containers:
+
+.. code-block:: python
+
+  >>> client.containers.run("ubuntu", "echo hello world")
+  'hello world\n'
+
+You can run containers in the background:
+
+.. code-block:: python
+
+  >>> client.containers.run("bfirsh/reticulate-splines", detach=True)
+<Container '45e6d2de7c54'>
+
+You can manage containers:
+
+.. code-block:: python
+
+  >>> client.containers.list()
+  [<Container '45e6d2de7c54'>, <Container 'db18e4f20eaa'>, ...]
+
+  >>> container = client.containers.get('45e6d2de7c54')
+
+  >>> container.attrs['Config']['Image']
+  "bfirsh/reticulate-splines"
+
+  >>> container.logs()
+  "Reticulating spline 1...\n"
+
+  >>> container.stop()
+
+You can stream logs:
+
+.. code-block:: python
+
+  >>> for line in container.logs(stream=True):
+  ...   print line.strip()
+  Reticulating spline 2...
+  Reticulating spline 3...
+  ...
+
+You can manage images:
+
+.. code-block:: python
+
+  >>> client.images.pull('nginx')
+  <Image 'nginx'>
+
+  >>> client.images.list()
+  [<Image 'ubuntu'>, <Image 'nginx'>, ...]
 
 .. toctree::
-   :maxdepth: 2
+  :hidden:
 
-   containers
-   api
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+  containers
+  api
