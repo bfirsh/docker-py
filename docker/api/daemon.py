@@ -25,7 +25,7 @@ class DaemonApiMixin(object):
 
         Example:
 
-            >>> for event in cli.events()
+            >>> for event in client.events()
             ...   print event
             {u'from': u'image/with:tag',
              u'id': u'container-id',

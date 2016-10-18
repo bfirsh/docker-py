@@ -76,5 +76,6 @@ You can manage images:
 .. toctree::
   :hidden:
 
+  client
   containers
   api
