@@ -34,7 +34,7 @@ You can run containers in the background:
 .. code-block:: python
 
   >>> client.containers.run("bfirsh/reticulate-splines", detach=True)
-<Container '45e6d2de7c54'>
+  <Container '45e6d2de7c54'>
 
 You can manage containers:
 
@@ -79,3 +79,4 @@ You can manage images:
   client
   containers
   api
+  change-log
