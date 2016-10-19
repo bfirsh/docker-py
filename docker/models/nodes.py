@@ -2,7 +2,7 @@ from .resource import Model, Collection
 
 
 class Node(Model):
-    """A node."""
+    """A node in a swarm."""
     id_attribute = 'ID'
 
 
@@ -11,11 +11,33 @@ class NodeCollection(Collection):
     model = Node
 
     def get(self, node_id):
-        """Get a node."""
+        """
+        Get a node.
+
+        Args:
+            node_id (string): ID of the node to be inspected.
+
+        Returns:
+            A :py:class:`Node` object.
+        """
         return self.prepare_model(self.client.api.inspect_node(node_id))
 
     def list(self, *args, **kwargs):
-        """List nodes."""
+        """
+        List swarm nodes.
+
+        Args:
+            filters (dict): Filters to process on the nodes list. Valid
+                filters: ``id``, ``name``, ``membership`` and ``role``.
+                Default: ``None``
+
+        Returns:
+            A list of :py:class:`Node` objects.
+
+        Example:
+
+            >>> client.nodes.list(filters={'role': 'manager'})
+        """
         return [
             self.prepare_model(n)
             for n in self.client.api.nodes(*args, **kwargs)

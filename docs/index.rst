@@ -78,5 +78,7 @@ You can manage images:
 
   client
   containers
+  nodes
+  swarm
   api
   change-log

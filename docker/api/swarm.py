@@ -17,8 +17,7 @@ class SwarmApiMixin(object):
                 history stored.
             snapshot_interval (int): Number of logs entries between snapshot.
             keep_old_snapshots (int): Number of snapshots to keep beyond the
-                current
-        snapshot.
+                current snapshot.
             log_entries_for_slow_followers (int): Number of log entries to
                 keep around to sync up slow followers after a snapshot is
                 created.
@@ -36,6 +35,16 @@ class SwarmApiMixin(object):
 
         Returns:
             ``docker.types.SwarmSpec`` instance.
+
+        Example:
+
+            >>> spec = client.create_swarm_spec(
+              snapshot_interval=5000, log_entries_for_slow_followers=1200
+            )
+            >>> client.init_swarm(
+              advertise_addr='eth0', listen_addr='0.0.0.0:5000',
+              force_new_cluster=False, swarm_spec=spec
+            )
         """
         return utils.SwarmSpec(*args, **kwargs)
 
@@ -117,7 +126,7 @@ class SwarmApiMixin(object):
     def join_swarm(self, remote_addrs, join_token, listen_addr=None,
                    advertise_addr=None):
         """
-        Join an existing Swarm.
+        Make this Engine join a swarm that has already been created.
 
         Args:
             remote_addrs (list): Addresses of one or more manager nodes already
@@ -152,10 +161,10 @@ class SwarmApiMixin(object):
     @utils.minimum_version('1.24')
     def leave_swarm(self, force=False):
         """
-        Leave a Swarm.
+        Leave a swarm.
 
         Args:
-            force (bool): Leave the Swarm even if this node is a manager.
+            force (bool): Leave the swarm even if this node is a manager.
                 Default: ``False``
 
         Returns:
@@ -176,7 +185,7 @@ class SwarmApiMixin(object):
     @utils.minimum_version('1.24')
     def nodes(self, filters=None):
         """
-        List Swarm nodes
+        List swarm nodes.
 
         Args:
             filters (dict): Filters to process on the nodes list. Valid

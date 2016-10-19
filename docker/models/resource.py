@@ -2,6 +2,9 @@
 class Model(object):
     id_attribute = 'Id'
 
+    #: The raw representation of this object from the API
+    attrs = None
+
     def __init__(self, attrs=None, client=None, collection=None):
         self.client = client
         self.collection = collection
