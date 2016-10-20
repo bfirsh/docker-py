@@ -124,3 +124,14 @@ class StreamParseError(RuntimeError):
 
 class BuildError(Exception):
     pass
+
+
+def create_unexpected_kwargs_error(name, kwargs):
+    quoted_kwargs = ["'{}'".format(k) for k in sorted(kwargs)]
+    text = ["{}() ".format(name)]
+    if len(quoted_kwargs) == 1:
+        text.append("got an unexpected keyword argument ")
+    else:
+        text.append("got unexpected keyword arguments ")
+    text.append(', '.join(quoted_kwargs))
+    return TypeError(''.join(text))

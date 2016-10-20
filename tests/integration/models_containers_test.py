@@ -202,7 +202,7 @@ class ContainerTest(BaseIntegrationTest):
     def test_update(self):
         client = docker.from_env()
         container = client.containers.run("alpine", "sleep 60", detach=True,
-                                          host_config={'CpuShares': 2})
+                                          cpu_shares=2)
         self.tmp_containers.append(container.id)
         assert container.attrs['HostConfig']['CpuShares'] == 2
         container.update(cpu_shares=3)

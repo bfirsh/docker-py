@@ -10,19 +10,15 @@ from .fake_api_client import make_fake_client
 class ContainerCollectionTest(unittest.TestCase):
     def test_run(self):
         client = make_fake_client()
-        out = client.containers.run(
-            'alpine',
-            'echo hello world',
-            environment={'FOO': 'BAR'},
-            working_dir='/code'
-        )
+        out = client.containers.run("alpine", "echo hello world")
 
         assert out == 'hello world\n'
+
         client.api.create_container.assert_called_with(
-            'alpine',
-            'echo hello world',
-            environment={'FOO': 'BAR'},
-            working_dir='/code'
+            image="alpine",
+            command="echo hello world",
+            detach=False,
+            host_config={'NetworkMode': 'default'}
         )
         client.api.inspect_container.assert_called_with(FAKE_CONTAINER_ID)
         client.api.start.assert_called_with(FAKE_CONTAINER_ID)
@@ -33,15 +29,174 @@ class ContainerCollectionTest(unittest.TestCase):
             stdout=True
         )
 
+    def test_build_create_container_args(self):
+        client = make_fake_client()
+        create_kwargs = client.containers._build_create_container_args(
+            image='alpine',
+            command='echo hello world',
+            blkio_weight_device=[{'Path': 'foo', 'Weight': 3}],
+            blkio_weight=2,
+            cap_add=['foo'],
+            cap_drop=['bar'],
+            cgroup_parent='foobar',
+            cpu_period=1,
+            cpu_quota=2,
+            cpu_shares=5,
+            cpuset_cpus='0-3',
+            detach=False,
+            device_read_bps=[{'Path': 'foo', 'Rate': 3}],
+            device_read_iops=[{'Path': 'foo', 'Rate': 3}],
+            device_write_bps=[{'Path': 'foo', 'Rate': 3}],
+            device_write_iops=[{'Path': 'foo', 'Rate': 3}],
+            devices=['/dev/sda:/dev/xvda:rwm'],
+            dns=['8.8.8.8'],
+            domainname='example.com',
+            dns_opt=['foo'],
+            dns_search=['example.com'],
+            entrypoint='/bin/sh',
+            environment={'FOO': 'BAR'},
+            extra_hosts={'foo': '1.2.3.4'},
+            group_add=['blah'],
+            ipc_mode='foo',
+            kernel_memory=123,
+            labels={'key': 'value'},
+            links={'foo': 'bar'},
+            log_config={'Type': 'json-file', 'Config': {}},
+            lxc_conf={'foo': 'bar'},
+            hostname='somehost',
+            mac_address='abc123',
+            mem_limit=123,
+            mem_reservation=123,
+            mem_swappiness=2,
+            memswap_limit=456,
+            name='somename',
+            network_disabled=False,
+            network_mode='blah',
+            networks=['foo'],
+            oom_kill_disable=True,
+            oom_score_adj=5,
+            pid_mode='host',
+            pids_limit=500,
+            ports={
+                1111: 4567,
+                2222: None
+            },
+            privileged=True,
+            publish_all_ports=True,
+            read_only=True,
+            restart_policy={'Name': 'always'},
+            security_opt=['blah'],
+            shm_size=123,
+            stdin_open=True,
+            stop_signal=9,
+            sysctls={'foo': 'bar'},
+            tmpfs={'/blah': ''},
+            tty=True,
+            ulimits=[{"Name": "nofile", "Soft": 1024, "Hard": 2048}],
+            user='bob',
+            userns_mode='host',
+            volume_driver='some_driver',
+            volumes=[
+                '/home/user1/:/mnt/vol2',
+                '/var/www:/mnt/vol1:ro',
+            ],
+            volumes_from=['container'],
+            working_dir='/code'
+        )
+
+        expected = dict(
+            image='alpine',
+            command='echo hello world',
+            domainname='example.com',
+            detach=False,
+            entrypoint='/bin/sh',
+            environment={'FOO': 'BAR'},
+            host_config={
+                'Binds': [
+                    '/home/user1/:/mnt/vol2',
+                    '/var/www:/mnt/vol1:ro',
+                ],
+                'BlkioDeviceReadBps': [{'Path': 'foo', 'Rate': 3}],
+                'BlkioDeviceReadIOps': [{'Path': 'foo', 'Rate': 3}],
+                'BlkioDeviceWriteBps': [{'Path': 'foo', 'Rate': 3}],
+                'BlkioDeviceWriteIOps': [{'Path': 'foo', 'Rate': 3}],
+                'BlkioWeightDevice': [{'Path': 'foo', 'Weight': 3}],
+                'BlkioWeight': 2,
+                'CapAdd': ['foo'],
+                'CapDrop': ['bar'],
+                'CgroupParent': 'foobar',
+                'CpuPeriod': 1,
+                'CpuQuota': 2,
+                'CpuShares': 5,
+                'CpuSetCpus': '0-3',
+                'Devices': [{'PathOnHost': '/dev/sda',
+                             'CgroupPermissions': 'rwm',
+                             'PathInContainer': '/dev/xvda'}],
+                'Dns': ['8.8.8.8'],
+                'DnsOptions': ['foo'],
+                'DnsSearch': ['example.com'],
+                'ExtraHosts': ['foo:1.2.3.4'],
+                'GroupAdd': ['blah'],
+                'IpcMode': 'foo',
+                'KernelMemory': 123,
+                'Links': ['foo:bar'],
+                'LogConfig': {'Type': 'json-file', 'Config': {}},
+                'LxcConf': [{'Key': 'foo', 'Value': 'bar'}],
+                'Memory': 123,
+                'MemoryReservation': 123,
+                'MemorySwap': 456,
+                'MemorySwappiness': 2,
+                'NetworkMode': 'blah',
+                'OomKillDisable': True,
+                'OomScoreAdj': 5,
+                'PidMode': 'host',
+                'PidsLimit': 500,
+                'PortBindings': {
+                    '1111/tcp': [{'HostIp': '', 'HostPort': '4567'}],
+                    '2222/tcp': [{'HostIp': '', 'HostPort': ''}]
+                },
+                'Privileged': True,
+                'PublishAllPorts': True,
+                'ReadonlyRootfs': True,
+                'RestartPolicy': {'Name': 'always'},
+                'SecurityOpt': ['blah'],
+                'ShmSize': 123,
+                'Sysctls': {'foo': 'bar'},
+                'Tmpfs': {'/blah': ''},
+                'Ulimits': [{"Name": "nofile", "Soft": 1024, "Hard": 2048}],
+                'UsernsMode': 'host',
+                'VolumesFrom': ['container'],
+            },
+            hostname='somehost',
+            labels={'key': 'value'},
+            mac_address='abc123',
+            name='somename',
+            network_disabled=False,
+            networking_config={'foo': None},
+            ports=[('1111', 'tcp'), ('2222', 'tcp')],
+            stdin_open=True,
+            stop_signal=9,
+            tty=True,
+            user='bob',
+            volume_driver='some_driver',
+            volumes=['/home/user1/', '/var/www'],
+            working_dir='/code'
+        )
+
+        assert create_kwargs == expected
+
     def test_run_detach(self):
         client = make_fake_client()
         container = client.containers.run('alpine', 'sleep 300', detach=True)
         assert isinstance(container, Container)
         assert container.id == FAKE_CONTAINER_ID
         client.api.create_container.assert_called_with(
-            'alpine',
-            'sleep 300',
-            detach=True
+            image='alpine',
+            command='sleep 300',
+            detach=True,
+            host_config={
+                'NetworkMode': 'default',
+            }
         )
         client.api.inspect_container.assert_called_with(FAKE_CONTAINER_ID)
         client.api.start.assert_called_with(FAKE_CONTAINER_ID)
@@ -74,7 +229,14 @@ class ContainerCollectionTest(unittest.TestCase):
         client = make_fake_client()
         image = client.images.get(FAKE_IMAGE_ID)
         client.containers.run(image)
-        client.api.create_container.assert_called_with(image.id, None)
+        client.api.create_container.assert_called_with(
+            image=image.id,
+            command=None,
+            detach=False,
+            host_config={
+                'NetworkMode': 'default',
+            }
+        )
 
     def test_run_remove(self):
         client = make_fake_client()
@@ -111,9 +273,10 @@ class ContainerCollectionTest(unittest.TestCase):
         assert isinstance(container, Container)
         assert container.id == FAKE_CONTAINER_ID
         client.api.create_container.assert_called_with(
-            'alpine',
-            'echo hello world',
-            environment={'FOO': 'BAR'}
+            image='alpine',
+            command='echo hello world',
+            environment={'FOO': 'BAR'},
+            host_config={'NetworkMode': 'default'}
         )
         client.api.inspect_container.assert_called_with(FAKE_CONTAINER_ID)
 
@@ -121,7 +284,11 @@ class ContainerCollectionTest(unittest.TestCase):
         client = make_fake_client()
         image = client.images.get(FAKE_IMAGE_ID)
         client.containers.create(image)
-        client.api.create_container.assert_called_with(image.id)
+        client.api.create_container.assert_called_with(
+            image=image.id,
+            command=None,
+            host_config={'NetworkMode': 'default'}
+        )
 
     def test_get(self):
         client = make_fake_client()

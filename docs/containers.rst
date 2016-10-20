@@ -17,10 +17,10 @@ Methods available on ``client.containers``:
 .. rst-class:: hide-signature
 .. autoclass:: ContainerCollection
 
-  .. automethod:: create(image, command, **kwargs)
+  .. automethod:: run(image, command=None, **kwargs)
+  .. automethod:: create(image, command=None, **kwargs)
   .. automethod:: get(id_or_name)
   .. automethod:: list(**kwargs)
-  .. automethod:: run(image, command, **kwargs)
 
 Container objects
 -----------------
