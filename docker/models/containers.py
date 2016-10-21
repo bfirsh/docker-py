@@ -191,7 +191,8 @@ class ContainerCollection(Collection):
                 the form of: ``[{"Path": "device_path", "Weight": weight}]``.
             blkio_weight: Block IO weight (relative weight), accepts a weight
                 value between 10 and 1000.
-            cap_add (list of str): Add kernel capabilities.
+            cap_add (list of str): Add kernel capabilities. For example,
+                ``["SYS_ADMIN", "MKNOD"]``.
             cap_drop (list of str): Drop kernel capabilities.
             cpu_group (int): The length of a CPU period in microseconds.
             cpu_period (int): Microseconds of CPU time that the container can
@@ -259,8 +260,14 @@ class ContainerCollection(Collection):
                 container to.
             name (str): The name for this container.
             network_disabled (bool): Disable networking.
-            network_mode (str): One of ``bridge``, ``none``,
-                ``container:<name|id>``, or ``host``.
+            network_mode (str): One of:
+
+                - ``bridge`` Create a new network stack for the container on
+                  on the bridge network.
+                - ``none`` No networking for this container.
+                - ``container:<name|id>`` Reuse another container's network
+                  stack.
+                - ``host`` Use the host network stack.
             oom_kill_disable (bool): Whether to disable OOM killer.
             oom_score_adj (int): An integer value containing the score given
                 to the container in order to tune OOM killer preferences.
@@ -296,8 +303,16 @@ class ContainerCollection(Collection):
                 only.
             remove (bool): Remove the container when it has finished running.
                 Default: ``False``.
-            restart_policy (dict): A dictionary with a key ``Name``, which
-                must be one of ``on-failure``, or ``always``.
+            restart_policy (dict): Restart the container when it exits.
+                Configured as a dictionary with keys:
+
+                - ``Name`` One of ``on-failure``, or ``always``.
+                - ``MaximumRetryCount`` Number of times to restart the
+                  container on failure.
+
+                For example:
+                ``{"Name": "on-failure", "MaximumRetryCount": 5}``
+
             security_opt (list): A list of string values to customize labels
                 for MLS systems, such as SELinux.
             shm_size (str or int): Size of /dev/shm (e.g. ``1G``).

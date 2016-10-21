@@ -219,6 +219,12 @@ class ContainerApiMixin(object):
         Creates a container. Parameters are similar to those for the ``docker
         run`` command except it doesn't support the attach options (``-a``).
 
+        The arguments that are passed directly to this function are
+        host-independent configuration options. Host-specific configuration
+        is passed with the `host_config` argument. You'll normally want to
+        use this method in combination with the :py:meth:`create_host_config`
+        method to generate ``host_config``.
+
         **Port bindings**
 
         Port binding is done in two parts: first, provide a list of ports to
@@ -347,7 +353,8 @@ class ContainerApiMixin(object):
             working_dir (str): Path to the working directory
             domainname (str or list): Set custom DNS search domains
             memswap_limit (int):
-            host_config (dict): A [HostConfig](hostconfig.md) dictionary
+            host_config (dict): A dictionary created with
+                :py:meth:`create_host_config`.
             mac_address (str): The Mac Address to assign the container
             labels (dict or list): A dictionary of name-value labels (e.g.
                 ``{"label1": "value1", "label2": "value2"}``) or a list of
@@ -391,6 +398,129 @@ class ContainerApiMixin(object):
         return self._result(res, True)
 
     def create_host_config(self, *args, **kwargs):
+        """
+        Create a dictionary for the ``host_config`` argument to
+        :py:meth:`create_container`.
+
+        Args:
+            binds (dict): Volumes to bind. See :py:meth:`create_container`
+                    for more information.
+            blkio_weight_device: Block IO weight (relative device weight) in
+                the form of: ``[{"Path": "device_path", "Weight": weight}]``.
+            blkio_weight: Block IO weight (relative weight), accepts a weight
+                value between 10 and 1000.
+            cap_add (list of str): Add kernel capabilities. For example,
+                ``["SYS_ADMIN", "MKNOD"]``.
+            cap_drop (list of str): Drop kernel capabilities.
+            cpu_group (int): The length of a CPU period in microseconds.
+            cpu_period (int): Microseconds of CPU time that the container can
+                get in a CPU period.
+            cpu_shares (int): CPU shares (relative weight).
+            cpuset_cpus (str): CPUs in which to allow execution (``0-3``,
+                ``0,1``).
+            device_read_bps: Limit read rate (bytes per second) from a device
+                in the form of: `[{"Path": "device_path", "Rate": rate}]`
+            device_read_iops: Limit read rate (IO per second) from a device.
+            device_write_bps: Limit write rate (bytes per second) from a
+                device.
+            device_write_iops: Limit write rate (IO per second) from a device.
+            devices (list): Expose host devices to the container, as a list
+                of strings in the form
+                ``<path_on_host>:<path_in_container>:<cgroup_permissions>``.
+
+                For example, ``/dev/sda:/dev/xvda:rwm`` allows the container
+                to have read-write access to the host's ``/dev/sda`` via a
+                node named ``/dev/xvda`` inside the container.
+            dns (list): Set custom DNS servers.
+            dns_search (list): DNS search domains.
+            extra_hosts (dict): Addtional hostnames to resolve inside the
+                container, as a mapping of hostname to IP address.
+            group_add (list): List of additional group names and/or IDs that
+                the container process will run as.
+            ipc_mode (str): Set the IPC mode for the container.
+            links (dict or list of tuples): Either a dictionary mapping name
+                to alias or as a list of ``(name, alias)`` tuples.
+            log_config (dict): Logging configuration, as a dictionary with
+                keys:
+
+                - ``type`` The logging driver name.
+                - ``config`` A dictionary of configuration for the logging
+                  driver.
+
+            lxc_conf (dict): LXC config.
+            mem_limit (float or str): Memory limit. Accepts float values
+                (which represent the memory limit of the created container in
+                bytes) or a string with a units identification char
+                (``100000b``, ``1000k``, ``128m``, ``1g``). If a string is
+                specified without a units character, bytes are assumed as an
+            mem_swappiness (int): Tune a container's memory swappiness
+                behavior. Accepts number between 0 and 100.
+            memswap_limit (str or int): Maximum amount of memory + swap a
+                container is allowed to consume.
+            network_mode (str): One of:
+
+                - ``bridge`` Create a new network stack for the container on
+                  on the bridge network.
+                - ``none`` No networking for this container.
+                - ``container:<name|id>`` Reuse another container's network
+                  stack.
+                - ``host`` Use the host network stack.
+            oom_kill_disable (bool): Whether to disable OOM killer.
+            oom_score_adj (int): An integer value containing the score given
+                to the container in order to tune OOM killer preferences.
+            pid_mode (str): If set to ``host``, use the host PID namespace
+                inside the container.
+            pids_limit (int): Tune a container's pids limit. Set ``-1`` for
+                unlimited.
+            port_bindings (dict): See :py:meth:`create_container`
+                    for more information.
+            privileged (bool): Give extended privileges to this container.
+            publish_all_ports (bool): Publish all ports to the host.
+            read_only (bool): Mount the container's root filesystem as read
+                only.
+            restart_policy (dict): Restart the container when it exits.
+                Configured as a dictionary with keys:
+
+                - ``Name`` One of ``on-failure``, or ``always``.
+                - ``MaximumRetryCount`` Number of times to restart the
+                  container on failure.
+            security_opt (list): A list of string values to customize labels
+                for MLS systems, such as SELinux.
+            shm_size (str or int): Size of /dev/shm (e.g. ``1G``).
+            sysctls (dict): Kernel parameters to set in the container.
+            tmpfs (dict): Temporary filesystems to mount, as a dictionary
+                mapping a path inside the container to options for that path.
+
+                For example:
+
+                .. code-block:: python
+
+                    {
+                        '/mnt/vol2': '',
+                        '/mnt/vol1': 'size=3G,uid=1000'
+                    }
+
+            ulimits (list): Ulimits to set inside the container, as a list of
+                dicts.
+            userns_mode (str): Sets the user namespace mode for the container
+                when user namespace remapping option is enabled. Supported
+                values are: ``host``
+            volumes_from (list): List of container names or IDs to get
+                volumes from.
+
+
+        Returns:
+            (dict) A dictionary which can be passed to the ``host_config``
+            argument to :py:meth:`create_container`.
+
+        Example:
+
+            >>> cli.create_host_config(privileged=True, cap_drop=['MKNOD'],
+                                       volumes_from=['nostalgic_newton'])
+            {'CapDrop': ['MKNOD'], 'LxcConf': None, 'Privileged': True,
+             'VolumesFrom': ['nostalgic_newton'], 'PublishAllPorts': False}
+
+"""
         if not kwargs:
             kwargs = {}
         if 'version' in kwargs:
