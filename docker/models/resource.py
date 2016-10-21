@@ -1,13 +1,18 @@
 
 class Model(object):
+    """
+    A base class for representing a single object on the server.
+    """
     id_attribute = 'Id'
 
-    #: The raw representation of this object from the API
-    attrs = None
-
     def __init__(self, attrs=None, client=None, collection=None):
+        #: A client pointing at the server that this object is on.
         self.client = client
+
+        #: The collection that this model is part of.
         self.collection = collection
+
+        #: The raw representation of this object from the API
         self.attrs = attrs
         if self.attrs is None:
             self.attrs = {}
@@ -20,15 +25,21 @@ class Model(object):
 
     @property
     def id(self):
+        """
+        The ID of the object.
+        """
         return self.attrs.get(self.id_attribute)
 
     @property
     def short_id(self):
+        """
+        The ID of the object, truncated to 10 characters.
+        """
         return self.id[:10]
 
     def reload(self):
         """
-        Loads this object from the server again and update `attrs` with the
+        Load this object from the server again and update ``attrs`` with the
         new data.
         """
         new_model = self.collection.get(self.id)
@@ -36,9 +47,17 @@ class Model(object):
 
 
 class Collection(object):
+    """
+    A base class for representing all objects of a particular type on the
+    server.
+    """
+
+    #: The type of object this collection represents, set by subclasses
     model = None
 
     def __init__(self, client=None):
+        #: The client pointing at the server that this collection of objects
+        #: is on.
         self.client = client
 
     def list(self):
@@ -51,6 +70,9 @@ class Collection(object):
         raise NotImplementedError
 
     def prepare_model(self, attrs):
+        """
+        Create a model from a set of attributes.
+        """
         if isinstance(attrs, Model):
             attrs.client = self.client
             attrs.collection = self

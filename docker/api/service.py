@@ -110,7 +110,7 @@ class ServiceApiMixin(object):
             ``True`` if successful.
 
         Raises:
-            `py:class:`docker.errors.APIError`: If not successful.
+            :py:class:`docker.errors.APIError`: If not successful.
         """
 
         url = self._url('/services/{0}', service)
@@ -190,7 +190,7 @@ class ServiceApiMixin(object):
             ``True`` if successful.
 
         Raises:
-            `py:class:`docker.errors.APIError`: If not successful.
+            :py:class:`docker.errors.APIError`: If not successful.
         """
         if endpoint_config is not None:
             warnings.warn(

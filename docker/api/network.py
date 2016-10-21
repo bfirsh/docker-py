@@ -9,8 +9,7 @@ class NetworkApiMixin(object):
     @minimum_version('1.21')
     def networks(self, names=None, ids=None):
         """
-        List networks currently registered by the docker daemon. Similar to
-        the ``docker networks ls`` command.
+        List networks. Similar to the ``docker networks ls`` command.
 
         Args:
             names (list): List of names to filter by
@@ -37,7 +36,7 @@ class NetworkApiMixin(object):
                        check_duplicate=None, internal=False, labels=None,
                        enable_ipv6=False):
         """
-        Create a network, similar to the ``docker network create``.
+        Create a network. Similar to the ``docker network create``.
 
         Args:
             name (str): Name of the network

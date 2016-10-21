@@ -57,8 +57,8 @@ class ImageApiMixin(object):
         Args:
             name (str): Only show images belonging to the repository ``name``
             quiet (bool): Only return numeric IDs as a list.
-            all (bool): Show all images (by default filter out the
-                intermediate image layers)
+            all (bool): Show intermediate image layers. By default, these are
+                filtered out.
             filters (dict): Filters to be processed on the image list.
                 Available filters:
                 - ``dangling`` (bool)
@@ -436,7 +436,7 @@ class ImageApiMixin(object):
             force (bool): Force
 
         Returns:
-            (bool): True if successful
+            (bool): ``True`` if successful
         """
         params = {
             'tag': tag,

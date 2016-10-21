@@ -46,11 +46,6 @@ class APIClient(
     """
     A low-level client for the Docker Remote API.
 
-    The main object-orientated API is built on top of ``APIClient``. If you
-    need some extra flexibility and power, it's possible to use ``APIClient``
-    directly. Each method maps one-to-one with a REST API endpoint, and returns
-    the response that the API responds with.
-
     Example:
 
         >>> import docker
@@ -67,14 +62,15 @@ class APIClient(
          u'Version': u'1.12.2-rc1'}
 
     Args:
-        base_url (str): URL to the Docker server, e.g.
-            ``unix:///var/run/docker.sock`` or ``tcp://127.0.0.1:1234``
-        version (str): The version of the API the client will use. Specify
-            ``'auto'`` to use the API version provided by the server.
-        timeout (int): The HTTP request timeout, in seconds.
-        tls (bool or TLSConfig): Enable/configure TLS. Pass ``True`` to enable
-            it with default options, or pass a :doc:`TLSConfig <tls>` object to
-            use custom configuration.
+        base_url (str): URL to the Docker server. For example,
+            ``unix:///var/run/docker.sock`` or ``tcp://127.0.0.1:1234``.
+        version (str): The version of the API to use. Set to ``auto`` to
+            automatically detect the server's version. Default: ``1.24``
+        timeout (int): Default timeout for API calls, in seconds.
+        tls (bool or :py:class:`~docker.tls.TLSConfig`): Enable TLS. Pass
+            ``True`` to enable it with default options, or pass a
+            :py:class:`~docker.tls.TLSConfig` object to use custom
+            configuration.
         user_agent (str): Set a custom user agent for requests to the server.
     """
     def __init__(self, base_url=None, version=None,

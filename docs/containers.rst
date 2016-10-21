@@ -3,14 +3,7 @@ Containers
 
 .. py:module:: docker.models.containers
 
-Containers containers containers containers.
-
-.. code-block:: python
-
-    >>> import docker
-    >>> client = docker.from_env()
-    >>> client.containers.run('alpine', 'echo hello world')
-    b'hello world\n'
+Run and manage containers on the server.
 
 Methods available on ``client.containers``:
 
@@ -26,5 +19,33 @@ Container objects
 -----------------
 
 .. autoclass:: Container()
-  :members:
-  :undoc-members:
+
+  .. autoattribute:: id
+  .. autoattribute:: short_id
+  .. autoattribute:: name
+  .. autoattribute:: status
+  .. py:attribute:: attrs
+
+    The raw representation of this object from the server.
+
+  .. automethod:: attach
+  .. automethod:: attach_socket
+  .. automethod:: commit
+  .. automethod:: diff
+  .. automethod:: exec_run
+  .. automethod:: export
+  .. automethod:: get_archive
+  .. automethod:: kill
+  .. automethod:: logs
+  .. automethod:: pause
+  .. automethod:: put_archive
+  .. automethod:: remove
+  .. automethod:: rename
+  .. automethod:: resize
+  .. automethod:: restart
+  .. automethod:: start
+  .. automethod:: stats
+  .. automethod:: stop
+  .. automethod:: top
+  .. automethod:: unpause
+  .. automethod:: update

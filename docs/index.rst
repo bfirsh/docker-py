@@ -15,14 +15,14 @@ The latest stable version `is available on PyPi <https://pypi.python.org/pypi/do
 Getting started
 ---------------
 
-Connect to Docker using the default socket or the configuration in your environment:
+To talk to a Docker daemon, you first need to instantiate a client. You can use :py:func:`~docker.client.from_env` to connect using the default socket or the configuration in your environment:
 
 .. code-block:: python
 
   import docker
   client = docker.from_env()
 
-You can run containers:
+You can now run containers:
 
 .. code-block:: python
 
@@ -73,13 +73,21 @@ You can manage images:
   >>> client.images.list()
   [<Image 'ubuntu'>, <Image 'nginx'>, ...]
 
+That's just a taster of what you can do with the Docker SDK for Python. For more, :doc:`take a look at the reference <client>`.
+
 .. toctree::
   :hidden:
+  :maxdepth: 2
 
+  Home <index>
   client
   containers
+  images
   networks
   nodes
+  services
   swarm
+  volumes
   api
+  tls
   change-log

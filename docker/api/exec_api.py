@@ -16,13 +16,11 @@ class ExecApiMixin(object):
             container (str): Target container where exec instance will be
                 created
             cmd (str or list): Command to be executed
-            stdout (bool): Attach to stdout of the exec command if true.
-                Default: True
-            stderr (bool): Attach to stderr of the exec command if true.
-                Default: True
-            since (UTC datetime or int): Output logs from this timestamp.
-                Default: ``None`` (all logs are given)
+            stdout (bool): Attach to stdout. Default: ``True``
+            stderr (bool): Attach to stderr. Default: ``True``
+            stdin (bool): Attach to stdin. Default: ``False``
             tty (bool): Allocate a pseudo-TTY. Default: False
+            privileged (bool): Run as privileged.
             user (str): User to execute command as. Default: root
 
         Returns:

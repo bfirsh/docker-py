@@ -1,7 +1,7 @@
-Client reference
-================
-
+Client
+======
 .. py:module:: docker.client
+
 
 Creating a client
 -----------------
@@ -10,8 +10,8 @@ To communicate with the Docker daemon, you first need to instantiate a client. T
 
 .. autofunction:: from_env()
 
-Reference
----------
+Client reference
+----------------
 
 .. autoclass:: Client()
 

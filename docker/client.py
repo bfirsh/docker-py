@@ -17,6 +17,18 @@ class Client(object):
 
         >>> import docker
         >>> client = Client(base_url='unix://var/run/docker.sock')
+
+    Args:
+        base_url (str): URL to the Docker server. For example,
+            ``unix:///var/run/docker.sock`` or ``tcp://127.0.0.1:1234``.
+        version (str): The version of the API to use. Set to ``auto`` to
+            automatically detect the server's version. Default: ``1.24``
+        timeout (int): Default timeout for API calls, in seconds.
+        tls (bool or :py:class:`~docker.tls.TLSConfig`): Enable TLS. Pass
+            ``True`` to enable it with default options, or pass a
+            :py:class:`~docker.tls.TLSConfig` object to use custom
+            configuration.
+        user_agent (str): Set a custom user agent for requests to the server.
     """
     def __init__(self, *args, **kwargs):
         self.api = APIClient(*args, **kwargs)

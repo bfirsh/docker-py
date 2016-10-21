@@ -14,19 +14,40 @@ class Service(Model):
 
     @property
     def version(self):
-        """The version number of this service."""
+        """
+        The version number of the service. If this is not the same as the
+        server, the :py:meth:`update` function will not work and you will
+        need to call :py:meth:`reload` before calling it again.
+        """
         return self.attrs.get('Version').get('Index')
 
     def remove(self):
-        """Remove this service."""
+        """
+        Stop and remove the service.
+        """
         return self.client.api.remove_service(self.id)
 
-    def tasks(self):
-        """List the tasks in this service."""
-        return self.client.api.tasks(filters={'service': self.id})
+    def tasks(self, filters=None):
+        """
+        List the tasks in this service.
+
+        Args:
+            filters (dict): A map of filters to process on the tasks list.
+                Valid filters: ``id``, ``name``, ``node``,
+                ``label``, and ``desired-state``.
+
+        Returns:
+            (list): List of task dictionaries.
+        """
+        if filters is None:
+            filters = {}
+        filters['service'] = self.id
+        return self.client.api.tasks(filters=filters)
 
     def update(self, **kwargs):
-        """Update a service's configuration."""
+        """
+        Update a service's configuration.
+        """
         create_kwargs, spec_kwargs = _get_create_and_spec_kwargs(kwargs)
         # Image is required, so if it hasn't been set, use current image
         if 'image' not in spec_kwargs:
@@ -54,14 +75,34 @@ class ServiceCollection(Collection):
         return self.get(service_id)
 
     def get(self, service_id):
-        """Get a service."""
+        """
+        Get a service.
+
+        Args:
+            service_id (str): The ID of the service.
+
+        Returns:
+            (:py:class:`Service`): The service.
+
+        Raises:
+            :py:class:`docker.errors.NotFound` If the service does not exist.
+        """
         return self.prepare_model(self.client.api.inspect_service(service_id))
 
-    def list(self, *args, **kwargs):
-        """List services."""
+    def list(self, **kwargs):
+        """
+        List services.
+
+        Args:
+            filters (dict): Filters to process on the nodes list. Valid
+                filters: ``id`` and ``name``. Default: ``None``.
+
+        Returns:
+            (list of :py:class:`Service`): The services.
+        """
         return [
             self.prepare_model(s)
-            for s in self.client.api.services(*args, **kwargs)
+            for s in self.client.api.services(**kwargs)
         ]
 
 

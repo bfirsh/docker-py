@@ -62,8 +62,8 @@ master_doc = 'index'
 # General information about the project.
 project = u'Docker SDK for Python'
 year = datetime.datetime.now().year
-copyright = u'%d Docker Inc.' % year
-author = u'Docker Inc.'
+copyright = u'%d Docker Inc' % year
+author = u'Docker Inc'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

@@ -19,18 +19,55 @@ class VolumeCollection(Collection):
     """Volumes on the Docker server."""
     model = Volume
 
-    def create(self, *args, **kwargs):
-        """Create a volume."""
-        obj = self.client.api.create_volume(*args, **kwargs)
+    def create(self, name, **kwargs):
+        """
+        Create a volume.
+
+        Args:
+            name (str): Name of the volume
+            driver (str): Name of the driver used to create the volume
+            driver_opts (dict): Driver options as a key-value dictionary
+            labels (dict): Labels to set on the volume
+
+        Returns:
+            (:py:class:`Volume`): The volume created.
+
+        Example:
+
+            >>> volume = client.volumes.create(name='foobar', driver='local',
+                    driver_opts={'foo': 'bar', 'baz': 'false'},
+                    labels={"key": "value"})
+
+        """
+        obj = self.client.api.create_volume(name, **kwargs)
         return self.prepare_model(obj)
 
     def get(self, volume_id):
-        """Get a volume."""
+        """
+        Get a volume.
+
+        Args:
+            volume_id (str): Volume name.
+
+        Returns:
+            (:py:class:`Volume`): The volume.
+
+        Raises:
+            :py:class:`docker.errors.NotFound` If the volume does not exist.
+        """
         return self.prepare_model(self.client.api.inspect_volume(volume_id))
 
-    def list(self, *args, **kwargs):
-        """List volumes."""
-        resp = self.client.api.volumes(*args, **kwargs)
+    def list(self, **kwargs):
+        """
+        List volumes. Similar to the ``docker volume ls`` command.
+
+        Args:
+            filters (dict): Server-side list filtering options.
+
+        Returns:
+            (list of :py:class:`Volume`): The volumes.
+        """
+        resp = self.client.api.volumes(**kwargs)
         if not resp.get('Volumes'):
             return []
         return [self.prepare_model(obj) for obj in resp['Volumes']]

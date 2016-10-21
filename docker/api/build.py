@@ -57,10 +57,10 @@ class BuildApiMixin(object):
 
         Args:
             path (str): Path to the directory containing the Dockerfile
-            tag (str): A tag to add to the final image
-            quiet (bool): Whether to return the status
             fileobj: A file object to use as the Dockerfile. (Or a file-like
                 object)
+            tag (str): A tag to add to the final image
+            quiet (bool): Whether to return the status
             nocache (bool): Don't use the cache when set to ``True``
             rm (bool): Remove intermediate containers. The ``docker build``
                 command now defaults to ``--rm=true``, but we have kept the old

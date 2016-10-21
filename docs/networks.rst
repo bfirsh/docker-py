@@ -3,21 +3,31 @@ Networks
 
 .. py:module:: docker.models.networks
 
-Docker allows you to create networks that you can attach containers to.
-
-`See Docker's networking configuration for full details
-<https://docs.docker.com/engine/userguide/networking/>`_.
+Create and manage networks. For more information about networks, `see the Engine documentation <https://docs.docker.com/engine/userguide/networking/>`_.
 
 Methods available on ``client.networks``:
 
 .. rst-class:: hide-signature
-.. autoclass:: NetworkCollection
-  :members:
-  :undoc-members:
+.. py:class:: NetworkCollection
+
+  .. automethod:: create
+  .. automethod:: get
+  .. automethod:: list
 
 Network objects
 -----------------
 
 .. autoclass:: Network()
-  :members:
-  :undoc-members:
+
+  .. autoattribute:: id
+  .. autoattribute:: short_id
+  .. autoattribute:: name
+  .. autoattribute:: containers
+  .. py:attribute:: attrs
+
+    The raw representation of this object from the server.
+
+  .. automethod:: connect
+  .. automethod:: disconnect
+  .. automethod:: reload
+  .. automethod:: remove

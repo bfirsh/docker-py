@@ -334,7 +334,9 @@ class ContainerTest(unittest.TestCase):
         client = make_fake_client()
         container = client.containers.get(FAKE_CONTAINER_ID)
         image = container.commit()
-        client.api.commit.assert_called_with(FAKE_CONTAINER_ID)
+        client.api.commit.assert_called_with(FAKE_CONTAINER_ID,
+                                             repository=None,
+                                             tag=None)
         assert isinstance(image, Image)
         assert image.id == FAKE_IMAGE_ID
 
@@ -365,8 +367,8 @@ class ContainerTest(unittest.TestCase):
     def test_get_archive(self):
         client = make_fake_client()
         container = client.containers.get(FAKE_CONTAINER_ID)
-        container.get_archive()
-        client.api.get_archive.assert_called_with(FAKE_CONTAINER_ID)
+        container.get_archive('foo')
+        client.api.get_archive.assert_called_with(FAKE_CONTAINER_ID, 'foo')
 
     def test_kill(self):
         client = make_fake_client()
@@ -389,8 +391,9 @@ class ContainerTest(unittest.TestCase):
     def test_put_archive(self):
         client = make_fake_client()
         container = client.containers.get(FAKE_CONTAINER_ID)
-        container.put_archive()
-        client.api.put_archive.assert_called_with(FAKE_CONTAINER_ID)
+        container.put_archive('path', 'foo')
+        client.api.put_archive.assert_called_with(FAKE_CONTAINER_ID,
+                                                  'path', 'foo')
 
     def test_remove(self):
         client = make_fake_client()

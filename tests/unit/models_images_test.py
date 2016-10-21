@@ -97,6 +97,7 @@ class ImageTest(unittest.TestCase):
         image.push(insecure_registry=True)
         client.api.push.assert_called_with(
             FAKE_IMAGE_ID,
+            tag=None,
             insecure_registry=True
         )
 
@@ -104,4 +105,4 @@ class ImageTest(unittest.TestCase):
         client = make_fake_client()
         image = client.images.get(FAKE_IMAGE_ID)
         image.tag('foo')
-        client.api.tag.assert_called_with(FAKE_IMAGE_ID, 'foo')
+        client.api.tag.assert_called_with(FAKE_IMAGE_ID, 'foo', tag=None)

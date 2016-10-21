@@ -87,7 +87,8 @@ class ContainerApiMixin(object):
     def commit(self, container, repository=None, tag=None, message=None,
                author=None, changes=None, conf=None):
         """
-        Identical to the ``docker commit`` command.
+        Commit a container to an image. Similar to the ``docker commit``
+        command.
 
         Args:
             container (str): The image hash of the container
@@ -117,7 +118,7 @@ class ContainerApiMixin(object):
                    since=None, before=None, limit=-1, size=False,
                    filters=None):
         """
-        List containers. Identical to the ``docker ps`` command.
+        List containers. Similar to the ``docker ps`` command.
 
         Args:
             quiet (bool): Only display numeric Ids
@@ -632,7 +633,7 @@ class ContainerApiMixin(object):
     @utils.check_resource
     def export(self, container):
         """
-        Export the contents of a filesystem as a tar archive to STDOUT.
+        Export the contents of a filesystem as a tar archive.
 
         Args:
             container (str): The container to export
@@ -712,14 +713,15 @@ class ContainerApiMixin(object):
     def logs(self, container, stdout=True, stderr=True, stream=False,
              timestamps=False, tail='all', since=None, follow=None):
         """
-        Identical to the ``docker logs`` command. The ``stream`` parameter
-        makes the ``logs`` function return a blocking generator you can iterate
-        over to retrieve log output as it happens.
+        Get logs from a container. Similar to the ``docker logs`` command.
+
+        The ``stream`` parameter makes the ``logs`` function return a blocking
+        generator you can iterate over to retrieve log output as it happens.
 
         Args:
             container (str): The container to get logs from
-            stdout (bool): Get STDOUT
-            stderr (bool): Get STDERR
+            stdout (bool): Get ``STDOUT``
+            stderr (bool): Get ``STDERR``
             stream (bool): Stream the response
             timestamps (bool): Show timestamps
             tail (str or int): Output specified number of lines at the end of
@@ -838,8 +840,9 @@ class ContainerApiMixin(object):
 
         Returns:
             (bool): True if the call succeeds.
-            :py:class:`~docker.errors.APIError` will be raised if an error
-            occurs.
+
+        Raises:
+            :py:class:`~docker.errors.APIError` If an error occurs.
         """
         params = {'path': path}
         url = self._url('/containers/{0}/archive', container)
@@ -921,8 +924,8 @@ class ContainerApiMixin(object):
               extra_hosts=None, read_only=None, pid_mode=None, ipc_mode=None,
               security_opt=None, ulimits=None):
         """
-        Similar to the ``docker start`` command, but doesn't support attach
-        options. Use ``.logs()`` to recover ``stdout`` and ``stderr``.
+        Start a container. Similar to the ``docker start`` command, but
+        doesn't support attach options.
 
         **Deprecation warning:** For API version > 1.15, it is highly
         recommended to provide host config options in the ``host_config``
@@ -1133,8 +1136,8 @@ class ContainerApiMixin(object):
     @utils.check_resource
     def wait(self, container, timeout=None):
         """
-        Identical to the ``docker wait`` command. Block until a container
-        stops, then return its exit code.
+        Block until a container stops, then return its exit code. Similar to
+        the ``docker wait`` command.
 
         Args:
             container (str or dict): The container to wait on. If a dict, the
@@ -1146,9 +1149,9 @@ class ContainerApiMixin(object):
             responds without a ``StatusCode`` attribute.
 
         Raises:
-            requests.exceptions.ReadTimeout: If the timeout is exceeded.
+            :py:class:`requests.exceptions.ReadTimeout`
+                If the timeout is exceeded.
         """
-
         url = self._url("/containers/{0}/wait", container)
         res = self._post(url, timeout=timeout)
         self._raise_for_status(res)

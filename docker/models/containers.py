@@ -11,7 +11,7 @@ class Container(Model):
     @property
     def name(self):
         """
-        Returns the name of the container.
+        The name of the container.
         """
         if self.attrs.get('Name') is not None:
             return self.attrs['Name'].lstrip('/')
@@ -19,24 +19,98 @@ class Container(Model):
     @property
     def status(self):
         """
-        Returns the status of the container. For example, `running`, or
-        `exited`.
+        The status of the container. For example, ``running``, or ``exited``.
         """
         return self.attrs['State']['Status']
 
-    def attach(self, *args, **kwargs):
-        return self.client.api.attach(self.id, *args, **kwargs)
+    def attach(self, **kwargs):
+        """
+        Attach to this container.
 
-    def commit(self, *args, **kwargs):
-        resp = self.client.api.commit(self.id, *args, **kwargs)
+        :py:meth:`logs` is a wrapper around this method, which you can
+        use instead if you want to fetch/stream container output without first
+        retrieving the entire backlog.
+
+        Args:
+            stdout (bool): Include stdout.
+            stderr (bool): Include stderr.
+            stream (bool): Return container output progressively as an iterator
+                of strings, rather than a single string.
+            logs (bool): Include the container's previous output.
+
+        Returns:
+            By default, the container's output as a single string.
+
+            If ``stream=True``, an iterator of output strings.
+        """
+        return self.client.api.attach(self.id, **kwargs)
+
+    def attach_socket(self, **kwargs):
+        """
+        Like :py:meth:`attach`, but returns the underlying socket-like object
+        for the HTTP request.
+
+        Args:
+            params (dict): Dictionary of request parameters (e.g. ``stdout``,
+                ``stderr``, ``stream``).
+            ws (bool): Use websockets instead of raw HTTP.
+        """
+        return self.client.api.attach_socket(self.id, **kwargs)
+
+    def commit(self, repository=None, tag=None, **kwargs):
+        """
+        Commit a container to an image. Similar to the ``docker commit``
+        command.
+
+        Args:
+            repository (str): The repository to push the image to
+            tag (str): The tag to push
+            message (str): A commit message
+            author (str): The name of the author
+            changes (str): Dockerfile instructions to apply while committing
+            conf (dict): The configuration for the container. See the
+                `Remote API documentation
+                <https://docs.docker.com/reference/api/docker_remote_api/>`_
+                for full details.
+        """
+
+        resp = self.client.api.commit(self.id, repository=repository, tag=tag,
+                                      **kwargs)
         return self.client.images.get(resp['Id'])
 
-    def diff(self, *args, **kwargs):
-        return self.client.api.diff(self.id, *args, **kwargs)
+    def diff(self):
+        """
+        Inspect changes on a container's filesystem.
+
+        Returns:
+            (str)
+        """
+        return self.client.api.diff(self.id)
 
     def exec_run(self, cmd, stdout=True, stderr=True, stdin=False, tty=False,
                  privileged=False, user='', detach=False, stream=False,
                  socket=False):
+        """
+        Run a command inside this container. Similar to
+        ``docker exec``.
+
+        Args:
+            cmd (str or list): Command to be executed
+            stdout (bool): Attach to stdout. Default: ``True``
+            stderr (bool): Attach to stderr. Default: ``True``
+            stdin (bool): Attach to stdin. Default: ``False``
+            tty (bool): Allocate a pseudo-TTY. Default: False
+            privileged (bool): Run as privileged.
+            user (str): User to execute command as. Default: root
+            detach (bool): If true, detach from the exec command.
+                Default: False
+            tty (bool): Allocate a pseudo-TTY. Default: False
+            stream (bool): Stream response data. Default: False
+
+        Returns:
+            (generator or str): If ``stream=True``, a generator yielding
+            response chunks. A string containing response data otherwise.
+        """
         resp = self.client.api.exec_create(
             self.id, cmd, stdout=stdout, stderr=stderr, stdin=stdin, tty=tty,
             privileged=privileged, user=user
@@ -45,56 +119,218 @@ class Container(Model):
             resp['Id'], detach=detach, tty=tty, stream=stream, socket=socket
         )
 
-    def export(self, *args, **kwargs):
-        return self.client.api.export(self.id, *args, **kwargs)
+    def export(self):
+        """
+        Export the contents of the container's filesystem as a tar archive.
 
-    def get_archive(self, *args, **kwargs):
-        return self.client.api.get_archive(self.id, *args, **kwargs)
+        Returns:
+            (str): The filesystem tar archive
+        """
+        return self.client.api.export(self.id)
 
-    def kill(self, *args, **kwargs):
-        return self.client.api.kill(self.id, *args, **kwargs)
+    def get_archive(self, path):
+        """
+        Retrieve a file or folder from the container in the form of a tar
+        archive.
 
-    def logs(self, *args, **kwargs):
-        return self.client.api.logs(self.id, *args, **kwargs)
+        Args:
+            path (str): Path to the file or folder to retrieve
 
-    def pause(self, *args, **kwargs):
-        return self.client.api.pause(self.id, *args, **kwargs)
+        Returns:
+            (tuple): First element is a raw tar data stream. Second element is
+            a dict containing ``stat`` information on the specified ``path``.
+        """
+        return self.client.api.get_archive(self.id, path)
 
-    def put_archive(self, *args, **kwargs):
-        return self.client.api.put_archive(self.id, *args, **kwargs)
+    def kill(self, signal=None):
+        """
+        Kill or send a signal to the container.
 
-    def remove(self, *args, **kwargs):
-        return self.client.api.remove_container(self.id, *args, **kwargs)
+        Args:
+            signal (str or int): The signal to send. Defaults to ``SIGKILL``
+        """
 
-    def rename(self, *args, **kwargs):
-        return self.client.api.rename(self.id, *args, **kwargs)
+        return self.client.api.kill(self.id, signal=signal)
 
-    def resize(self, *args, **kwargs):
-        return self.client.api.resize(self.id, *args, **kwargs)
+    def logs(self, **kwargs):
+        """
+        Get logs from this container. Similar to the ``docker logs`` command.
 
-    def restart(self, *args, **kwargs):
-        return self.client.api.restart(self.id, *args, **kwargs)
+        The ``stream`` parameter makes the ``logs`` function return a blocking
+        generator you can iterate over to retrieve log output as it happens.
 
-    def start(self, *args, **kwargs):
-        return self.client.api.start(self.id, *args, **kwargs)
+        Args:
+            stdout (bool): Get ``STDOUT``
+            stderr (bool): Get ``STDERR``
+            stream (bool): Stream the response
+            timestamps (bool): Show timestamps
+            tail (str or int): Output specified number of lines at the end of
+                logs. Either an integer of number of lines or the string
+                ``all``. Default ``all``
+            since (datetime or int): Show logs since a given datetime or
+                integer epoch (in seconds)
+            follow (bool): Follow log output
 
-    def stats(self, *args, **kwargs):
-        return self.client.api.stats(self.id, *args, **kwargs)
+        Returns:
+            (generator or str): Logs from the container.
+        """
+        return self.client.api.logs(self.id, **kwargs)
 
-    def stop(self, *args, **kwargs):
-        return self.client.api.stop(self.id, *args, **kwargs)
+    def pause(self):
+        """
+        Pauses all processes within this container.
+        """
+        return self.client.api.pause(self.id)
 
-    def top(self, *args, **kwargs):
-        return self.client.api.top(self.id, *args, **kwargs)
+    def put_archive(self, path, data):
+        """
+        Insert a file or folder in this container using a tar archive as
+        source.
 
-    def unpause(self, *args, **kwargs):
-        return self.client.api.unpause(self.id, *args, **kwargs)
+        Args:
+            path (str): Path inside the container where the file(s) will be
+                extracted. Must exist.
+            data (bytes): tar data to be extracted
 
-    def update(self, *args, **kwargs):
-        return self.client.api.update_container(self.id, *args, **kwargs)
+        Returns:
+            (bool): True if the call succeeds.
 
-    def wait(self, *args, **kwargs):
-        return self.client.api.wait(self.id, *args, **kwargs)
+        Raises:
+            :py:class:`~docker.errors.APIError` If an error occurs.
+        """
+        return self.client.api.put_archive(self.id, path, data)
+
+    def remove(self, **kwargs):
+        """
+        Remove this container. Similar to the ``docker rm`` command.
+
+        Args:
+            v (bool): Remove the volumes associated with the container
+            link (bool): Remove the specified link and not the underlying
+                container
+            force (bool): Force the removal of a running container (uses
+                ``SIGKILL``)
+        """
+        return self.client.api.remove_container(self.id, **kwargs)
+
+    def rename(self, name):
+        """
+        Rename this container. Similar to the ``docker rename`` command.
+
+        Args:
+            name (str): New name for the container
+        """
+        return self.client.api.rename(self.id, name)
+
+    def resize(self, height, width):
+        """
+        Resize the tty session.
+
+        Args:
+            height (int): Height of tty session
+            width (int): Width of tty session
+        """
+        return self.client.api.resize(self.id, height, width)
+
+    def restart(self, **kwargs):
+        """
+        Restart this container. Similar to the ``docker restart`` command.
+
+        Args:
+            timeout (int): Number of seconds to try to stop for before killing
+                the container. Once killed it will then be restarted. Default
+                is 10 seconds.
+        """
+        return self.client.api.restart(self.id, **kwargs)
+
+    def start(self, **kwargs):
+        """
+        Start this container. Similar to the ``docker start`` command, but
+        doesn't support attach options.
+        """
+        return self.client.api.start(self.id, **kwargs)
+
+    def stats(self, **kwargs):
+        """
+        Stream statistics for this container. Similar to the
+        ``docker stats`` command.
+
+        Args:
+            decode (bool): If set to true, stream will be decoded into dicts
+                on the fly. False by default.
+            stream (bool): If set to false, only the current stats will be
+                returned instead of a stream. True by default.
+        """
+        return self.client.api.stats(self.id, **kwargs)
+
+    def stop(self, **kwargs):
+        """
+        Stops a container. Similar to the ``docker stop`` command.
+
+        Args:
+            timeout (int): Timeout in seconds to wait for the container to
+                stop before sending a ``SIGKILL``. Default: 10
+        """
+        return self.client.api.stop(self.id, **kwargs)
+
+    def top(self, **kwargs):
+        """
+        Display the running processes of the container.
+
+        Args:
+            ps_args (str): An optional arguments passed to ps (e.g. ``aux``)
+
+        Returns:
+            (str): The output of the top
+        """
+        return self.client.api.top(self.id, **kwargs)
+
+    def unpause(self):
+        """
+        Unpause all processes within the container.
+        """
+        return self.client.api.unpause(self.id)
+
+    def update(self, **kwargs):
+        """
+        Update resource configuration of the containers.
+
+        Args:
+            blkio_weight (int): Block IO (relative weight), between 10 and 1000
+            cpu_period (int): Limit CPU CFS (Completely Fair Scheduler) period
+            cpu_quota (int): Limit CPU CFS (Completely Fair Scheduler) quota
+            cpu_shares (int): CPU shares (relative weight)
+            cpuset_cpus (str): CPUs in which to allow execution
+            cpuset_mems (str): MEMs in which to allow execution
+            mem_limit (int or str): Memory limit
+            mem_reservation (int or str): Memory soft limit
+            memswap_limit (int or str): Total memory (memory + swap), -1 to
+                disable swap
+            kernel_memory (int or str): Kernel memory limit
+            restart_policy (dict): Restart policy dictionary
+
+        Returns:
+            (dict): Dictionary containing a ``Warnings`` key.
+        """
+        return self.client.api.update_container(self.id, **kwargs)
+
+    def wait(self, **kwargs):
+        """
+        Block until the container stops, then return its exit code. Similar to
+        the ``docker wait`` command.
+
+        Args:
+            timeout (int): Request timeout
+
+        Returns:
+            (int): The exit code of the container. Returns ``-1`` if the API
+            responds without a ``StatusCode`` attribute.
+
+        Raises:
+            :py:class:`requests.exceptions.ReadTimeout`
+                If the timeout is exceeded.
+        """
+        return self.client.api.wait(self.id, **kwargs)
 
 
 # kwargs to copy straight from run to create
@@ -183,6 +419,21 @@ class ContainerCollection(Collection):
         If the ``detach`` argument is ``True``, it will start the container
         and immediately return a :py:class:`Container` object, similar to
         ``docker run -d``.
+
+        Example:
+            Run a container and get its output:
+
+            >>> import docker
+            >>> client = docker.from_env()
+            >>> client.containers.run('alpine', 'echo hello world')
+            b'hello world\\n'
+
+            Run a container and detach:
+
+            >>> container = client.containers.run('bfirsh/reticulate-splines',
+                                                  detach=True)
+            >>> container.logs()
+            'Reticulating spline 1...\\nReticulating spline 2...\\n'
 
         Args:
             image (str): The image to run.
@@ -486,6 +737,9 @@ class ContainerCollection(Collection):
         """
         Get a container by name or ID.
 
+        Args:
+            container_id (str): Container name or ID.
+
         Returns:
             A :py:class:`Container` object.
         """
@@ -494,10 +748,40 @@ class ContainerCollection(Collection):
 
     def list(self, all=False, before=None, filters=None, limit=-1, since=None):
         """
-        List containers.
+        List containers. Similar to the ``docker ps`` command.
+
+        Args:
+            all (bool): Show all containers. Only running containers are shown
+                by default trunc (bool): Truncate output
+            since (str): Show only containers created since Id or Name, include
+                non-running ones
+            before (str): Show only container created before Id or Name,
+                include non-running ones
+            limit (int): Show `limit` last created containers, include
+                non-running ones
+            filters (dict): Filters to be processed on the image list.
+                Available filters:
+
+                - `exited` (int): Only containers with specified exit code
+                - `status` (str): One of ``restarting``, ``running``,
+                    ``paused``, ``exited``
+                - `label` (str): format either ``"key"`` or ``"key=value"``
+                - `id` (str): The id of the container.
+                - `name` (str): The name of the container.
+                - `ancestor` (str): Filter by container ancestor. Format of
+                    ``<image-name>[:tag]``, ``<image-id>``, or
+                    ``<image@digest>``.
+                - `before` (str): Only containers created before a particular
+                    container. Give the container name or id.
+                - `since` (str): Only containers created after a particular
+                    container. Give container name or id.
+
+                A comprehensive list can be found in the documentation for
+                `docker ps
+                <https://docs.docker.com/engine/reference/commandline/ps>`_.
 
         Returns:
-            A list of :py:class:`Container` objects.
+            (list of :py:class:`Container`)
         """
         resp = self.client.api.containers(all=all, before=before,
                                           filters=filters, limit=limit,
