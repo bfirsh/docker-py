@@ -37,14 +37,14 @@ class NetworkApiMixin(object):
                        check_duplicate=None, internal=False, labels=None,
                        enable_ipv6=False):
         """
-        Create a network, similar to the ``docker network create`` command.
-        See the [networks documentation](networks.md) for details.
+        Create a network, similar to the ``docker network create``.
 
         Args:
             name (str): Name of the network
             driver (str): Name of the driver used to create the network
             options (dict): Driver options as a key-value dictionary
-            ipam (dict): Optional custom IP scheme for the network
+            ipam (dict): Optional custom IP scheme for the network.
+                Created with :py:meth:`~docker.utils.create_ipam_config`.
             check_duplicate (bool): Request daemon to check for networks with
                 same name. Default: ``True``.
             internal (bool): Restrict external access to the network. Default
@@ -55,6 +55,27 @@ class NetworkApiMixin(object):
 
         Returns:
             (dict): The created network reference object
+
+        Example:
+            A network using the bridge driver:
+
+                >>> client.create_network("network1", driver="bridge")
+
+            You can also create more advanced networks with custom IPAM
+            configurations. For example, setting the subnet to
+            ``192.168.52.0/24`` and gateway address to ``192.168.52.254``.
+
+            .. code-block:: python
+
+                >>> ipam_pool = docker.utils.create_ipam_pool(
+                    subnet='192.168.52.0/24',
+                    gateway='192.168.52.254'
+                )
+                >>> ipam_config = docker.utils.create_ipam_config(
+                    pool_configs=[ipam_pool]
+                )
+                >>> docker_client.create_network("network1", driver="bridge",
+                                                 ipam=ipam_config)
         """
         if options is not None and not isinstance(options, dict):
             raise TypeError('options must be a dictionary')

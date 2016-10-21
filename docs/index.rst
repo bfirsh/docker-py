@@ -78,6 +78,7 @@ You can manage images:
 
   client
   containers
+  networks
   nodes
   swarm
   api

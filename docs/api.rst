@@ -1,29 +1,39 @@
 Low-level API
 =============
 
+.. py:module:: docker.api
+
 .. autoclass:: docker.api.client.APIClient
 
 Containers
 ----------
 
+.. py:module:: docker.api.container
+
 .. rst-class:: hide-signature
-.. autoclass:: docker.api.container.ContainerApiMixin
+.. autoclass:: ContainerApiMixin
   :members:
   :undoc-members:
+
+.. py:module:: docker.api.image
 
 Images
 ------
 
+.. py:module:: docker.api.image
+
 .. rst-class:: hide-signature
-.. autoclass:: docker.api.image.ImageApiMixin
+.. autoclass:: ImageApiMixin
   :members:
   :undoc-members:
 
 Building images
 ---------------
 
+.. py:module:: docker.api.build
+
 .. rst-class:: hide-signature
-.. autoclass:: docker.api.build.BuildApiMixin
+.. autoclass:: BuildApiMixin
   :members:
   :undoc-members:
 
@@ -35,42 +45,61 @@ Networks
   :members:
   :undoc-members:
 
+Utilities
+~~~~~~~~~
+
+These functions are available under ``docker.utils`` to create arguments
+for :py:meth:`create_network`:
+
+.. autofunction:: docker.utils.create_ipam_config
+.. autofunction:: docker.utils.create_ipam_pool
+
 Volumes
 -------
 
+.. py:module:: docker.api.volume
+
 .. rst-class:: hide-signature
-.. autoclass:: docker.api.volume.VolumeApiMixin
+.. autoclass:: VolumeApiMixin
   :members:
   :undoc-members:
 
 Executing commands in containers
 --------------------------------
 
+.. py:module:: docker.api.exec_api
+
 .. rst-class:: hide-signature
-.. autoclass:: docker.api.exec_api.ExecApiMixin
+.. autoclass:: ExecApiMixin
   :members:
   :undoc-members:
 
 Swarms
 ------
 
+.. py:module:: docker.api.swarm
+
 .. rst-class:: hide-signature
-.. autoclass:: docker.api.swarm.SwarmApiMixin
+.. autoclass:: SwarmApiMixin
   :members:
   :undoc-members:
 
 Services
 --------
 
+.. py:module:: docker.api.service
+
 .. rst-class:: hide-signature
-.. autoclass:: docker.api.service.ServiceApiMixin
+.. autoclass:: ServiceApiMixin
   :members:
   :undoc-members:
 
 The Docker daemon
 -----------------
 
+.. py:module:: docker.api.daemon
+
 .. rst-class:: hide-signature
-.. autoclass:: docker.api.daemon.DaemonApiMixin
+.. autoclass:: DaemonApiMixin
   :members:
   :undoc-members:
