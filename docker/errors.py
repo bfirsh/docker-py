@@ -2,7 +2,12 @@ import requests
 
 
 class DockerException(Exception):
-    pass
+    """
+    A base class from which all other exceptions inherit.
+
+    If you want to catch all errors that the Docker SDK might raise,
+    catch this base exception.
+    """
 
 
 def create_api_error_from_http_exception(e):
@@ -24,6 +29,9 @@ def create_api_error_from_http_exception(e):
 
 
 class APIError(requests.exceptions.HTTPError, DockerException):
+    """
+    An HTTP error from the API.
+    """
     def __init__(self, message, response=None, explanation=None):
         # requests 1.2 supports response as a keyword argument, but
         # requests 1.1 doesn't
