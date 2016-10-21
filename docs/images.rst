@@ -26,7 +26,6 @@ Image objects
 
   .. autoattribute:: id
   .. autoattribute:: short_id
-  .. autoattribute:: name
   .. autoattribute:: tags
   .. py:attribute:: attrs
 

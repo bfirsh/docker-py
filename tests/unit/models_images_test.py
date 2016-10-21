@@ -63,17 +63,6 @@ class ImageTest(unittest.TestCase):
                                    'f69d65a6f73ef6262057ad0a15dcd'})
         assert image.short_id == 'b684607067'
 
-    def test_name(self):
-        image = Image(attrs={'Id': 'b6846070672ce4e8f1f91564ea6782bd675'
-                                   'f69d65a6f73ef6262057ad0a15dcd'})
-        assert image.name == 'b684607067'
-
-        image = Image(attrs={
-            'Id': 'b6846070672ce4e8f1f91564ea6782bd675',
-            'RepoTags': ['test_image:latest']
-        })
-        assert image.name == 'test_image:latest'
-
     def test_tags(self):
         image = Image(attrs={
             'RepoTags': ['test_image:latest']

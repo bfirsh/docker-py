@@ -13,14 +13,7 @@ class Image(Model):
     An image on the server.
     """
     def __repr__(self):
-        return "<%s: %s>" % (self.__class__.__name__, self.name)
-
-    @property
-    def name(self):
-        """
-        The name of the image.
-        """
-        return self.tags[0] if self.tags else self.short_id
+        return "<%s: '%s'>" % (self.__class__.__name__, "', '".join(self.tags))
 
     @property
     def short_id(self):
