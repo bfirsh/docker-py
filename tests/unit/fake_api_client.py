@@ -28,7 +28,7 @@ def make_fake_api_client():
     change behaviour will not work.
     """
     api_client = docker.APIClient()
-    return CopyReturnMagicMock(**{
+    mock_client = CopyReturnMagicMock(**{
         'build.return_value': fake_api.FAKE_IMAGE_ID,
         'commit.return_value': fake_api.post_fake_commit()[1],
         'containers.return_value': fake_api.get_fake_containers()[1],
@@ -48,6 +48,8 @@ def make_fake_api_client():
         'start.return_value': None,
         'wait.return_value': 0,
     })
+    mock_client._version = docker.constants.DEFAULT_DOCKER_API_VERSION
+    return mock_client
 
 
 def make_fake_client():

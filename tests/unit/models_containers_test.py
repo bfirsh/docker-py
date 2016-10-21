@@ -1,5 +1,5 @@
 import docker
-from docker.models.containers import Container
+from docker.models.containers import Container, _create_container_args
 from docker.models.images import Image
 import unittest
 
@@ -29,9 +29,8 @@ class ContainerCollectionTest(unittest.TestCase):
             stdout=True
         )
 
-    def test_build_create_container_args(self):
-        client = make_fake_client()
-        create_kwargs = client.containers._build_create_container_args(
+    def test_create_container_args(self):
+        create_kwargs = _create_container_args(dict(
             image='alpine',
             command='echo hello world',
             blkio_weight_device=[{'Path': 'foo', 'Weight': 3}],
@@ -95,6 +94,7 @@ class ContainerCollectionTest(unittest.TestCase):
             ulimits=[{"Name": "nofile", "Soft": 1024, "Hard": 2048}],
             user='bob',
             userns_mode='host',
+            version='1.23',
             volume_driver='some_driver',
             volumes=[
                 '/home/user1/:/mnt/vol2',
@@ -102,7 +102,7 @@ class ContainerCollectionTest(unittest.TestCase):
             ],
             volumes_from=['container'],
             working_dir='/code'
-        )
+        ))
 
         expected = dict(
             image='alpine',

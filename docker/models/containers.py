@@ -2,6 +2,7 @@ import copy
 
 from ..errors import (ContainerError, ImageNotFound,
                       create_unexpected_kwargs_error)
+from ..utils import create_host_config
 from .images import Image
 from .resource import Collection, Model
 
@@ -333,80 +334,6 @@ class Container(Model):
         return self.client.api.wait(self.id, **kwargs)
 
 
-# kwargs to copy straight from run to create
-RUN_CREATE_KWARGS = [
-    'command',
-    # 'cpu_shares', # TODO: pass through for particular version?
-    # 'cpuset',
-    'detach',
-    'domainname',
-    'entrypoint',
-    'environment',
-    'hostname',
-    'image',
-    'labels',
-    'mac_address',
-    'name',
-    'network_disabled',
-    'stdin_open',
-    'stop_signal',
-    'tty',
-    'user',
-    'volume_driver',
-    # 'volumes_from', # TODO: pass through for particular version?
-    'working_dir',
-]
-
-# kwargs to copy straight from run to host_config
-RUN_HOST_CONFIG_KWARGS = [
-    'blkio_weight_device',
-    'blkio_weight',
-    'cap_add',
-    'cap_drop',
-    'cgroup_parent',
-    'cpu_period',
-    'cpu_quota',
-    'cpu_shares',
-    'cpuset_cpus',
-    'device_read_bps',
-    'device_read_iops',
-    'device_write_bps',
-    'device_write_iops',
-    'devices',
-    'dns_opt',
-    'dns_search',
-    'dns',  # TODO: moved from create to host_config
-    'extra_hosts',
-    'group_add',
-    'ipc_mode',
-    'kernel_memory',
-    'links',
-    'log_config',
-    'lxc_conf',
-    'mem_limit',  # TODO: moved from create to host_config
-    'mem_reservation',
-    'mem_swappiness',
-    'memswap_limit',  # TODO: moved from create to host_config
-    'network_mode',
-    'oom_kill_disable',
-    'oom_score_adj',
-    'pid_mode',
-    'pids_limit',
-    'privileged',
-    'publish_all_ports',
-    'read_only',
-    'restart_policy',
-    'security_opt',
-    'shm_size',
-    'sysctls',
-    'tmpfs',
-    'ulimits',
-    'userns_mode',
-    'version',
-    'volumes_from',
-]
-
-
 class ContainerCollection(Collection):
     model = Container
 
@@ -662,53 +589,6 @@ class ContainerCollection(Collection):
             raise ContainerError(container, exit_status, command, image, out)
         return out
 
-    def _build_create_container_args(self, **kwargs):
-        """
-        Convert arguments to create() to arguments to create_container().
-        """
-        # Copy over kwargs which can be copied directly
-        create_kwargs = {}
-        for key in copy.copy(kwargs):
-            if key in RUN_CREATE_KWARGS:
-                create_kwargs[key] = kwargs.pop(key)
-        host_config_kwargs = {}
-        for key in copy.copy(kwargs):
-            if key in RUN_HOST_CONFIG_KWARGS:
-                host_config_kwargs[key] = kwargs.pop(key)
-
-        # Process kwargs which are split over both create and host_config
-        ports = kwargs.pop('ports', {})
-        if ports:
-            host_config_kwargs['port_bindings'] = ports
-
-        volumes = kwargs.pop('volumes', {})
-        if volumes:
-            host_config_kwargs['binds'] = volumes
-
-        networks = kwargs.pop('networks', [])
-        if networks:
-            create_kwargs['networking_config'] = {network: None
-                                                  for network in networks}
-
-        # All kwargs should have been consumed by this point, so raise
-        # error if any are left
-        if kwargs:
-            raise create_unexpected_kwargs_error('run', kwargs)
-
-        create_kwargs['host_config'] = self.client.api.create_host_config(
-            **host_config_kwargs)
-
-        # Fill in any kwargs which need processing by create_host_config first
-        port_bindings = create_kwargs['host_config'].get('PortBindings')
-        if port_bindings:
-            # sort to make consistent for tests
-            create_kwargs['ports'] = [tuple(p.split('/', 1))
-                                      for p in sorted(port_bindings.keys())]
-        binds = create_kwargs['host_config'].get('Binds')
-        if binds:
-            create_kwargs['volumes'] = [v.split(':')[0] for v in binds]
-        return create_kwargs
-
     def create(self, image, command=None, **kwargs):
         """
         Create a container without starting it. Similar to ``docker create``.
@@ -727,9 +607,10 @@ class ContainerCollection(Collection):
         """
         if isinstance(image, Image):
             image = image.id
-        create_kwargs = self._build_create_container_args(image=image,
-                                                          command=command,
-                                                          **kwargs)
+        kwargs['image'] = image
+        kwargs['command'] = command
+        kwargs['version'] = self.client.api._version
+        create_kwargs = _create_container_args(kwargs)
         resp = self.client.api.create_container(**create_kwargs)
         return self.get(resp['Id'])
 
@@ -787,3 +668,124 @@ class ContainerCollection(Collection):
                                           filters=filters, limit=limit,
                                           since=since)
         return [self.get(r['Id']) for r in resp]
+
+
+# kwargs to copy straight from run to create
+RUN_CREATE_KWARGS = [
+    'command',
+    # 'cpu_shares', # TODO: pass through for particular version?
+    # 'cpuset',
+    'detach',
+    'domainname',
+    'entrypoint',
+    'environment',
+    'hostname',
+    'image',
+    'labels',
+    'mac_address',
+    'name',
+    'network_disabled',
+    'stdin_open',
+    'stop_signal',
+    'tty',
+    'user',
+    'volume_driver',
+    # 'volumes_from', # TODO: pass through for particular version?
+    'working_dir',
+]
+
+# kwargs to copy straight from run to host_config
+RUN_HOST_CONFIG_KWARGS = [
+    'blkio_weight_device',
+    'blkio_weight',
+    'cap_add',
+    'cap_drop',
+    'cgroup_parent',
+    'cpu_period',
+    'cpu_quota',
+    'cpu_shares',
+    'cpuset_cpus',
+    'device_read_bps',
+    'device_read_iops',
+    'device_write_bps',
+    'device_write_iops',
+    'devices',
+    'dns_opt',
+    'dns_search',
+    'dns',  # TODO: moved from create to host_config
+    'extra_hosts',
+    'group_add',
+    'ipc_mode',
+    'kernel_memory',
+    'links',
+    'log_config',
+    'lxc_conf',
+    'mem_limit',  # TODO: moved from create to host_config
+    'mem_reservation',
+    'mem_swappiness',
+    'memswap_limit',  # TODO: moved from create to host_config
+    'network_mode',
+    'oom_kill_disable',
+    'oom_score_adj',
+    'pid_mode',
+    'pids_limit',
+    'privileged',
+    'publish_all_ports',
+    'read_only',
+    'restart_policy',
+    'security_opt',
+    'shm_size',
+    'sysctls',
+    'tmpfs',
+    'ulimits',
+    'userns_mode',
+    'version',
+    'volumes_from',
+]
+
+
+def _create_container_args(kwargs):
+    """
+    Convert arguments to create() to arguments to create_container().
+    """
+    # Copy over kwargs which can be copied directly
+    create_kwargs = {}
+    for key in copy.copy(kwargs):
+        if key in RUN_CREATE_KWARGS:
+            create_kwargs[key] = kwargs.pop(key)
+    host_config_kwargs = {}
+    for key in copy.copy(kwargs):
+        if key in RUN_HOST_CONFIG_KWARGS:
+            host_config_kwargs[key] = kwargs.pop(key)
+
+    # Process kwargs which are split over both create and host_config
+    ports = kwargs.pop('ports', {})
+    if ports:
+        host_config_kwargs['port_bindings'] = ports
+
+    volumes = kwargs.pop('volumes', {})
+    if volumes:
+        host_config_kwargs['binds'] = volumes
+
+    networks = kwargs.pop('networks', [])
+    if networks:
+        create_kwargs['networking_config'] = {network: None
+                                              for network in networks}
+
+    # All kwargs should have been consumed by this point, so raise
+    # error if any are left
+    if kwargs:
+        raise create_unexpected_kwargs_error('run', kwargs)
+
+    create_kwargs['host_config'] = create_host_config(**host_config_kwargs)
+
+    # Fill in any kwargs which need processing by create_host_config first
+    port_bindings = create_kwargs['host_config'].get('PortBindings')
+    if port_bindings:
+        # sort to make consistent for tests
+        create_kwargs['ports'] = [tuple(p.split('/', 1))
+                                  for p in sorted(port_bindings.keys())]
+    binds = create_kwargs['host_config'].get('Binds')
+    if binds:
+        create_kwargs['volumes'] = [v.split(':')[0] for v in binds]
+    return create_kwargs
