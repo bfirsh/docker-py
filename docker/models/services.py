@@ -1,4 +1,5 @@
-import inspect
+import copy
+from docker.errors import create_unexpected_kwargs_error
 from docker.types import TaskTemplate, ContainerSpec
 from .resource import Model, Collection
 
@@ -46,17 +47,21 @@ class Service(Model):
 
     def update(self, **kwargs):
         """
-        Update a service's configuration.
+        Update a service's configuration. Similar to the ``docker service
+        update`` command.
+
+        Takes the same parameters as :py:meth:`~ServiceCollection.create`.
         """
-        create_kwargs, spec_kwargs = _get_create_and_spec_kwargs(kwargs)
         # Image is required, so if it hasn't been set, use current image
-        if 'image' not in spec_kwargs:
+        if 'image' not in kwargs:
             spec = self.attrs['Spec']['TaskTemplate']['ContainerSpec']
-            spec_kwargs['image'] = spec['Image']
+            kwargs['image'] = spec['Image']
+
+        create_kwargs = _get_create_service_kwargs('update', kwargs)
+
         return self.client.api.update_service(
             self.id,
             self.version,
-            TaskTemplate(ContainerSpec(**spec_kwargs)),
             **create_kwargs
         )
 
@@ -65,13 +70,49 @@ class ServiceCollection(Collection):
     """Services on the Docker server."""
     model = Service
 
-    def create(self, **kwargs):
-        """Create a service."""
-        create_kwargs, spec_kwargs = _get_create_and_spec_kwargs(kwargs)
-        service_id = self.client.api.create_service(
-            TaskTemplate(ContainerSpec(**spec_kwargs)),
-            **create_kwargs
-        )
+    def create(self, image, command=None, **kwargs):
+        """
+        Create a service. Similar to the ``docker service create`` command.
+
+        Args:
+            image (str): The image name to use for the containers.
+            command (list of str or str): Command to run.
+            args (list of str): Arguments to the command.
+            constraints (list of str): Placement constraints.
+            container_labels (dict): Labels to apply to the container.
+            endpoint_config (dict): Properties that can be configured to
+                access and load balance a service. Default: ``None``.
+            env (list of str): Environment variables, in the form
+                ``KEY=val``.
+            labels (dict): Labels to apply to the service.
+            log_driver (str): Log driver to use for containers.
+            log_driver_options (dict): Log driver options.
+            mode (string): Scheduling mode for the service (``replicated`` or
+                ``global``). Defaults to ``replicated``.
+            mounts (list of str): Mounts for the containers, in the form
+                ``source:target:options``, where options is either
+                ``ro`` or ``rw``.
+            name (str): Name to give to the service.
+            networks (list): List of network names or IDs to attach the
+                service to. Default: ``None``.
+            resources (dict): Resource limits and reservations. For the
+                format, see the Remote API documentation.
+            restart_policy (dict): Restart policy for containers. For the
+                format, see the Remote API documentation.
+            stop_grace_period (int): Amount of time to wait for
+                containers to terminate before forcefully killing them.
+            update_config (dict): Specification for the update strategy of the
+                service. Default: ``None``
+            user (str): User to run commands as.
+            workdir (str): Working directory for commands to run.
+
+        Returns:
+            (:py:class:`Service`) The created service.
+        """
+        kwargs['image'] = image
+        kwargs['command'] = command
+        create_kwargs = _get_create_service_kwargs('create', kwargs)
+        service_id = self.client.api.create_service(**create_kwargs)
         return self.get(service_id)
 
     def get(self, service_id):
@@ -105,26 +146,71 @@ class ServiceCollection(Collection):
             for s in self.client.api.services(**kwargs)
         ]
 
+# kwargs to copy straight over to ContainerSpec
+CONTAINER_SPEC_KWARGS = [
+    'image',
+    'command',
+    'args',
+    'env',
+    'workdir',
+    'user',
+    'labels',
+    'mounts',
+    'stop_grace_period',
+]
 
-def _container_spec_kwargs():
-    if hasattr(inspect, 'signature'):
-        args = inspect.signature(ContainerSpec.__init__).parameters.keys()
-    else:
-        args = inspect.getargspec(ContainerSpec.__init__).args
-    return [a for a in args if a != 'self']
+# kwargs to copy straight over to TaskTemplate
+TASK_TEMPLATE_KWARGS = [
+    'resources',
+    'restart_policy',
+]
+
+# kwargs to copy straight over to create_service
+CREATE_SERVICE_KWARGS = [
+    'name',
+    'labels',
+    'mode',
+    'update_config',
+    'networks',
+    'endpoint_config',
+]
 
 
-def _get_create_and_spec_kwargs(kwargs):
-    # TODO: raise exception for unknown kwargs
+def _get_create_service_kwargs(func_name, kwargs):
+    # Copy over things which can be copied directly
     create_kwargs = {}
-    spec_kwargs = {}
-    for key, value in kwargs.items():
-        if key == 'labels':
-            create_kwargs['labels'] = value
-        elif key == 'container_labels':
-            spec_kwargs['labels'] = value
-        elif key in _container_spec_kwargs():
-            spec_kwargs[key] = value
-        else:
-            create_kwargs[key] = value
-    return create_kwargs, spec_kwargs
+    for key in copy.copy(kwargs):
+        if key in CREATE_SERVICE_KWARGS:
+            create_kwargs[key] = kwargs.pop(key)
+    container_spec_kwargs = {}
+    for key in copy.copy(kwargs):
+        if key in CONTAINER_SPEC_KWARGS:
+            container_spec_kwargs[key] = kwargs.pop(key)
+    task_template_kwargs = {}
+    for key in copy.copy(kwargs):
+        if key in TASK_TEMPLATE_KWARGS:
+            task_template_kwargs[key] = kwargs.pop(key)
+
+    if 'container_labels' in kwargs:
+        container_spec_kwargs['labels'] = kwargs.pop('container_labels')
+
+    if 'constraints' in kwargs:
+        task_template_kwargs['placement'] = {
+            'Constraints': kwargs.pop('constraints')
+        }
+
+    if 'log_driver' in kwargs:
+        task_template_kwargs['log_driver'] = {
+            'Name': kwargs.pop('log_driver'),
+            'Options': kwargs.pop('log_driver_options', {})
+        }
+
+    # All kwargs should have been consumed by this point, so raise
+    # error if any are left
+    if kwargs:
+        raise create_unexpected_kwargs_error(func_name, kwargs)
+
+    container_spec = ContainerSpec(**container_spec_kwargs)
+    task_template_kwargs['container_spec'] = container_spec
+    create_kwargs['task_template'] = TaskTemplate(**task_template_kwargs)
+    return create_kwargs

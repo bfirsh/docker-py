@@ -14,16 +14,14 @@ class ServiceApiMixin(object):
 
         Args:
             task_template (dict): Specification of the task to start as part
-                of the new service. See the [TaskTemplate
-                class](#TaskTemplate) for details.
+                of the new service.
             name (string): User-defined name for the service. Optional.
             labels (dict): A map of labels to associate with the service.
                 Optional.
             mode (string): Scheduling mode for the service (``replicated`` or
                 ``global``). Defaults to ``replicated``.
             update_config (dict): Specification for the update strategy of the
-                service. See the [UpdateConfig class](#UpdateConfig) for
-                details. Default: ``None``.
+                service. Default: ``None``
             networks (list): List of network names or IDs to attach the
                 service to. Default: ``None``.
             endpoint_config (dict): Properties that can be configured to
