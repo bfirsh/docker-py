@@ -42,6 +42,15 @@ class ImageCollectionTest(unittest.TestCase):
         assert isinstance(image, Image)
         assert image.id == FAKE_IMAGE_ID
 
+    def test_push(self):
+        client = make_fake_client()
+        client.images.push('foobar', insecure_registry=True)
+        client.api.push.assert_called_with(
+            'foobar',
+            tag=None,
+            insecure_registry=True
+        )
+
     def test_remove(self):
         client = make_fake_client()
         client.images.remove('test_image')
@@ -79,16 +88,6 @@ class ImageTest(unittest.TestCase):
         image = client.images.get(FAKE_IMAGE_ID)
         image.history()
         client.api.history.assert_called_with(FAKE_IMAGE_ID)
-
-    def test_push(self):
-        client = make_fake_client()
-        image = client.images.get(FAKE_IMAGE_ID)
-        image.push(insecure_registry=True)
-        client.api.push.assert_called_with(
-            FAKE_IMAGE_ID,
-            tag=None,
-            insecure_registry=True
-        )
 
     def test_tag(self):
         client = make_fake_client()

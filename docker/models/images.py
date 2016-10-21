@@ -44,23 +44,6 @@ class Image(Model):
         """
         return self.client.api.history(self.id)
 
-    def push(self, tag=None, **kwargs):
-        """
-        Push an image or a repository to the registry. Similar to the ``docker
-        push`` command.
-
-        Args:
-            tag (str): An optional tag to push
-            stream (bool): Stream the output as a blocking generator
-            insecure_registry (bool): Use ``http://`` to connect to the
-                registry
-            auth_config (dict): Override the credentials that
-                :py:meth:`~docker.client.Client.login` has set for
-                this request. ``auth_config`` should contain the ``username``
-                and ``password`` keys to be valid.
-        """
-        return self.client.api.push(self.id, tag=tag, **kwargs)
-
     def tag(self, repository, tag=None, **kwargs):
         """
         Tag this image into a repository. Similar to the ``docker tag``
@@ -208,6 +191,10 @@ class ImageCollection(Collection):
         """
         self.client.api.pull(name, **kwargs)
         return self.get(name)
+
+    def push(self, repository, tag=None, **kwargs):
+        return self.client.api.push(repository, tag=tag, **kwargs)
+    push.__doc__ = APIClient.push.__doc__
 
     def remove(self, *args, **kwargs):
         self.client.api.remove_image(*args, **kwargs)

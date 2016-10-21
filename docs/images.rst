@@ -15,6 +15,7 @@ Methods available on ``client.images``:
   .. automethod:: list(**kwargs)
   .. automethod:: load
   .. automethod:: pull
+  .. automethod:: push
   .. automethod:: remove
   .. automethod:: search
 
@@ -33,6 +34,5 @@ Image objects
 
 
   .. automethod:: history
-  .. automethod:: push
   .. automethod:: reload
   .. automethod:: tag
