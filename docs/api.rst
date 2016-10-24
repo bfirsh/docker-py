@@ -107,10 +107,3 @@ The Docker daemon
 .. autoclass:: DaemonApiMixin
   :members:
   :undoc-members:
-
-TLS
----
-
-.. py:module:: docker.tls
-
-If you need more options for connecting to TLS, :py:class:`~docker.api.client.APIClient` can be configured with a :py:class:`~docker.tls.TLSConfig` object.

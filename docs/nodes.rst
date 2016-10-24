@@ -3,7 +3,7 @@ Nodes
 
 .. py:module:: docker.models.nodes
 
-Nodes are part of a :doc:`swarm`. Before you can use these methods, you first need to :doc:`join or initialize a swarm <swarm>`.
+Get and list nodes in a swarm. Before you can use these methods, you first need to :doc:`join or initialize a swarm <swarm>`.
 
 Methods available on ``client.nodes``:
 

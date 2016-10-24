@@ -23,6 +23,10 @@ class DaemonApiMixin(object):
             (generator): A blocking generator you can iterate over to retrieve
                 events as they happen.
 
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+
         Example:
 
             >>> for event in client.events()
@@ -61,6 +65,10 @@ class DaemonApiMixin(object):
 
         Returns:
             (dict): The info as a dict
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self._result(self._get(self._url("/info")), True)
 
@@ -82,6 +90,10 @@ class DaemonApiMixin(object):
 
         Returns:
             (dict): The response from the login request
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if insecure_registry:
             warnings.warn(
@@ -124,6 +136,10 @@ class DaemonApiMixin(object):
 
         Returns:
             (bool) The response from the server.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self._result(self._get(self._url('/_ping'))) == 'OK'
 
@@ -134,6 +150,10 @@ class DaemonApiMixin(object):
 
         Returns:
             (dict): The server version information
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url("/version", versioned_api=api_version)
         return self._result(self._get(url), json=True)

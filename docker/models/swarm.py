@@ -74,7 +74,8 @@ class Swarm(Model):
             ``True`` if the request went through.
 
         Raises:
-            ``APIError`` on failure.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 
@@ -106,6 +107,10 @@ class Swarm(Model):
         """
         Inspect the swarm on the server and store the response in
         :py:attr:`attrs`.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         self.attrs = self.client.api.inspect_swarm()
 
@@ -123,6 +128,10 @@ class Swarm(Model):
                 ``False``.
             rotate_manager_token (bool): Rotate the manager join token.
                 Default: ``False``.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         """
         # TODO: this seems to have to be set?

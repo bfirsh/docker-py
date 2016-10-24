@@ -25,6 +25,10 @@ class ExecApiMixin(object):
 
         Returns:
             (dict): A dictionary with an exec ``Id`` key.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
 
         if privileged and utils.compare_version('1.19', self._version) < 0:
@@ -63,6 +67,10 @@ class ExecApiMixin(object):
 
         Returns:
             (dict): Dictionary of values returned by the endpoint.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if isinstance(exec_id, dict):
             exec_id = exec_id.get('Id')
@@ -104,6 +112,10 @@ class ExecApiMixin(object):
         Returns:
             (generator or str): If ``stream=True``, a generator yielding
             response chunks. A string containing response data otherwise.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         # we want opened socket if socket == True
         if isinstance(exec_id, dict):

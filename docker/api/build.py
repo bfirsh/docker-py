@@ -93,7 +93,10 @@ class BuildApiMixin(object):
             A generator for the build output.
 
         Raises:
-            ``TypeError``, if neither ``path`` nor ``fileobj`` is specified.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+            ``TypeError``
+                If neither ``path`` nor ``fileobj`` is specified.
         """
         remote = context = None
         headers = {}

@@ -30,6 +30,10 @@ class ServiceApiMixin(object):
         Returns:
             A dictionary containing an ``ID`` key for the newly created
             service.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if endpoint_config is not None:
             warnings.warn(
@@ -75,7 +79,8 @@ class ServiceApiMixin(object):
             ``True`` if successful.
 
         Raises:
-            `py:class:`docker.errors.APIError`: If not successful.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url('/services/{0}', service)
         return self._result(self._get(url), True)
@@ -91,6 +96,10 @@ class ServiceApiMixin(object):
 
         Returns:
             (dict): Information about the task.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url('/tasks/{0}', task)
         return self._result(self._get(url), True)
@@ -108,7 +117,8 @@ class ServiceApiMixin(object):
             ``True`` if successful.
 
         Raises:
-            :py:class:`docker.errors.APIError`: If not successful.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
 
         url = self._url('/services/{0}', service)
@@ -127,6 +137,10 @@ class ServiceApiMixin(object):
 
         Returns:
             A list of dictionaries containing data about each service.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {
             'filters': utils.convert_filters(filters) if filters else None
@@ -146,6 +160,10 @@ class ServiceApiMixin(object):
 
         Returns:
             (list): List of task dictionaries.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
 
         params = {
@@ -188,7 +206,8 @@ class ServiceApiMixin(object):
             ``True`` if successful.
 
         Raises:
-            :py:class:`docker.errors.APIError`: If not successful.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if endpoint_config is not None:
             warnings.warn(

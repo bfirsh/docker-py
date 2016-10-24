@@ -17,6 +17,10 @@ class NetworkApiMixin(object):
 
         Returns:
             (dict): List of network objects.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
 
         filters = {}
@@ -54,6 +58,10 @@ class NetworkApiMixin(object):
 
         Returns:
             (dict): The created network reference object
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
             A network using the bridge driver:

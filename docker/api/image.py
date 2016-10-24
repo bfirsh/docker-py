@@ -22,7 +22,11 @@ class ImageApiMixin(object):
 
         Returns:
             (urllib3.response.HTTPResponse object): The response from the
-                daemon
+            daemon.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 
@@ -45,6 +49,10 @@ class ImageApiMixin(object):
 
         Returns:
             (str): The history of the image
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         res = self._get(self._url("/images/{0}/history", image))
         return self._result(res, True)
@@ -66,6 +74,10 @@ class ImageApiMixin(object):
 
         Returns:
             (dict or list): A list if ``quiet=True``, otherwise a dict.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if viz:
             if utils.compare_version('1.7', self._version) >= 0:
@@ -241,6 +253,10 @@ class ImageApiMixin(object):
         Returns:
             (dict): Similar to the output of ``docker inspect``, but as a
         single dict
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self._result(
             self._get(self._url("/images/{0}/json", image)), True
@@ -253,7 +269,7 @@ class ImageApiMixin(object):
         save``). Similar to ``docker load``.
 
         Args:
-            data (binary): Image data to be loaded
+            data (binary): Image data to be loaded.
         """
         res = self._post(self._url("/images/load"), data=data)
         self._raise_for_status(res)
@@ -275,6 +291,10 @@ class ImageApiMixin(object):
 
         Returns:
             (generator or str): The output
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 
@@ -347,15 +367,19 @@ class ImageApiMixin(object):
                 and ``password`` keys to be valid.
 
         Returns:
-            (generator or str): The output of the upload
+            (generator or str): The output from the server.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
             >>> for line in cli.push('yourname/app', stream=True):
-            ... print line
+            ...   print line
             {"status":"Pushing repository yourname/app (1 tags)"}
             {"status":"Pushing","progressDetail":{},"id":"511136ea3c5a"}
             {"status":"Image already pushed, skipping","progressDetail":{},
-        "id":"511136ea3c5a"}
+             "id":"511136ea3c5a"}
             ...
 
         """
@@ -414,10 +438,14 @@ class ImageApiMixin(object):
         command.
 
         Args:
-            term (str): A term to search for
+            term (str): A term to search for.
 
         Returns:
-            (list of dicts): The response of the search
+            (list of dicts): The response of the search.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self._result(
             self._get(self._url("/images/search"), params={'term': term}),
@@ -437,6 +465,10 @@ class ImageApiMixin(object):
 
         Returns:
             (bool): ``True`` if successful
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {
             'tag': tag,

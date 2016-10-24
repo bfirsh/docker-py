@@ -16,6 +16,10 @@ class VolumeApiMixin(object):
             (dict): Dictionary with list of volume objects as value of the
             ``Volumes`` key.
 
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+
         Example:
 
             >>> cli.volumes()
@@ -46,6 +50,10 @@ class VolumeApiMixin(object):
 
         Returns:
             (dict): The created volume reference object
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 
@@ -90,6 +98,10 @@ class VolumeApiMixin(object):
 
         Returns:
             (dict): Volume information dictionary
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 

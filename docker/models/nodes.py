@@ -19,6 +19,10 @@ class NodeCollection(Collection):
 
         Returns:
             A :py:class:`Node` object.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.prepare_model(self.client.api.inspect_node(node_id))
 
@@ -33,6 +37,10 @@ class NodeCollection(Collection):
 
         Returns:
             A list of :py:class:`Node` objects.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 

@@ -25,6 +25,10 @@ class Service(Model):
     def remove(self):
         """
         Stop and remove the service.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.remove_service(self.id)
 
@@ -39,6 +43,10 @@ class Service(Model):
 
         Returns:
             (list): List of task dictionaries.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if filters is None:
             filters = {}
@@ -51,6 +59,10 @@ class Service(Model):
         update`` command.
 
         Takes the same parameters as :py:meth:`~ServiceCollection.create`.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         # Image is required, so if it hasn't been set, use current image
         if 'image' not in kwargs:
@@ -108,6 +120,10 @@ class ServiceCollection(Collection):
 
         Returns:
             (:py:class:`Service`) The created service.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         kwargs['image'] = image
         kwargs['command'] = command
@@ -126,7 +142,10 @@ class ServiceCollection(Collection):
             (:py:class:`Service`): The service.
 
         Raises:
-            :py:class:`docker.errors.NotFound` If the service does not exist.
+            :py:class:`docker.errors.NotFound`
+                If the service does not exist.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.prepare_model(self.client.api.inspect_service(service_id))
 
@@ -140,6 +159,10 @@ class ServiceCollection(Collection):
 
         Returns:
             (list of :py:class:`Service`): The services.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return [
             self.prepare_model(s)

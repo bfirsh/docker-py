@@ -43,6 +43,10 @@ class Network(Model):
             ipv6_address (str): The IP address of this container on the
                 network, using the IPv6 protocol. Defaults to ``None``.
             link_local_ips (list): A list of link-local (IPv4/IPv6) addresses.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if isinstance(container, Container):
             container = container.id
@@ -58,6 +62,10 @@ class Network(Model):
                 :py:class:`~docker.models.containers.Container` object.
             force (bool): Force the container to disconnect from a network.
                 Default: ``False``
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if isinstance(container, Container):
             container = container.id
@@ -67,6 +75,10 @@ class Network(Model):
     def remove(self):
         """
         Remove this network.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.remove_network(self.id)
 
@@ -155,11 +167,15 @@ class NetworkCollection(Collection):
         List networks. Similar to the ``docker networks ls`` command.
 
         Args:
-            names (list): List of names to filter by
-            ids (list): List of ids to filter by
+            names (list): List of names to filter by.
+            ids (list): List of ids to filter by.
 
         Returns:
             (list of :py:class:`Network`) The networks on the server.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         resp = self.client.api.networks(*args, **kwargs)
         return [self.prepare_model(item) for item in resp]

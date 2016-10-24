@@ -41,6 +41,10 @@ class Image(Model):
 
         Returns:
             (str): The history of the image.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.history(self.id)
 
@@ -50,7 +54,11 @@ class Image(Model):
 
         Returns:
             (urllib3.response.HTTPResponse object): The response from the
-                daemon
+            daemon.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 
@@ -71,6 +79,10 @@ class Image(Model):
             repository (str): The repository to set for the tag
             tag (str): The tag name
             force (bool): Force
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Returns:
             (bool): ``True`` if successful
@@ -131,6 +143,14 @@ class ImageCollection(Collection):
 
         Returns:
             (:py:class:`Image`): The built image.
+
+        Raises:
+            :py:class:`docker.errors.BuildError`
+                If there is an error during the build.
+            :py:class:`docker.errors.APIError`
+                If the server returns any other error.
+            ``TypeError``
+                If neither ``path`` nor ``fileobj`` is specified.
         """
         resp = self.client.api.build(**kwargs)
         if isinstance(resp, six.string_types):
@@ -157,6 +177,12 @@ class ImageCollection(Collection):
 
         Returns:
             (:py:class:`Image`): The image.
+
+        Raises:
+            :py:class:`docker.errors.ImageNotFound` If the image does not
+            exist.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.prepare_model(self.client.api.inspect_image(name))
 
@@ -175,11 +201,27 @@ class ImageCollection(Collection):
 
         Returns:
             (list of :py:class:`Image`): The images.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         resp = self.client.api.images(name=name, all=all, filters=filters)
         return [self.prepare_model(r) for r in resp]
 
     def load(self, data):
+        """
+        Load an image that was previously saved using
+        :py:meth:`~docker.models.images.Image.save` (or ``docker save``).
+        Similar to ``docker load``.
+
+        Args:
+            data (binary): Image data to be loaded.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+        """
         return self.client.api.load_image(data)
 
     def pull(self, name, **kwargs):
@@ -202,6 +244,10 @@ class ImageCollection(Collection):
 
         Returns:
             (:py:class:`Image`): The image that has been pulled.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 

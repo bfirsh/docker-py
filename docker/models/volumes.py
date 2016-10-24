@@ -32,6 +32,10 @@ class VolumeCollection(Collection):
         Returns:
             (:py:class:`Volume`): The volume created.
 
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+
         Example:
 
             >>> volume = client.volumes.create(name='foobar', driver='local',
@@ -53,7 +57,10 @@ class VolumeCollection(Collection):
             (:py:class:`Volume`): The volume.
 
         Raises:
-            :py:class:`docker.errors.NotFound` If the volume does not exist.
+            :py:class:`docker.errors.NotFound`
+                If the volume does not exist.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.prepare_model(self.client.api.inspect_volume(volume_id))
 
@@ -66,6 +73,10 @@ class VolumeCollection(Collection):
 
         Returns:
             (list of :py:class:`Volume`): The volumes.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         resp = self.client.api.volumes(**kwargs)
         if not resp.get('Volumes'):

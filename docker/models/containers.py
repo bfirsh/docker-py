@@ -43,6 +43,10 @@ class Container(Model):
             By default, the container's output as a single string.
 
             If ``stream=True``, an iterator of output strings.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.attach(self.id, **kwargs)
 
@@ -55,6 +59,10 @@ class Container(Model):
             params (dict): Dictionary of request parameters (e.g. ``stdout``,
                 ``stderr``, ``stream``).
             ws (bool): Use websockets instead of raw HTTP.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.attach_socket(self.id, **kwargs)
 
@@ -73,6 +81,10 @@ class Container(Model):
                 `Remote API documentation
                 <https://docs.docker.com/reference/api/docker_remote_api/>`_
                 for full details.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
 
         resp = self.client.api.commit(self.id, repository=repository, tag=tag,
@@ -85,6 +97,10 @@ class Container(Model):
 
         Returns:
             (str)
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.diff(self.id)
 
@@ -111,6 +127,10 @@ class Container(Model):
         Returns:
             (generator or str): If ``stream=True``, a generator yielding
             response chunks. A string containing response data otherwise.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         resp = self.client.api.exec_create(
             self.id, cmd, stdout=stdout, stderr=stderr, stdin=stdin, tty=tty,
@@ -126,6 +146,10 @@ class Container(Model):
 
         Returns:
             (str): The filesystem tar archive
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.export(self.id)
 
@@ -140,6 +164,10 @@ class Container(Model):
         Returns:
             (tuple): First element is a raw tar data stream. Second element is
             a dict containing ``stat`` information on the specified ``path``.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.get_archive(self.id, path)
 
@@ -149,6 +177,10 @@ class Container(Model):
 
         Args:
             signal (str or int): The signal to send. Defaults to ``SIGKILL``
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
 
         return self.client.api.kill(self.id, signal=signal)
@@ -174,12 +206,20 @@ class Container(Model):
 
         Returns:
             (generator or str): Logs from the container.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.logs(self.id, **kwargs)
 
     def pause(self):
         """
         Pauses all processes within this container.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.pause(self.id)
 
@@ -211,6 +251,10 @@ class Container(Model):
                 container
             force (bool): Force the removal of a running container (uses
                 ``SIGKILL``)
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.remove_container(self.id, **kwargs)
 
@@ -220,6 +264,10 @@ class Container(Model):
 
         Args:
             name (str): New name for the container
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.rename(self.id, name)
 
@@ -230,6 +278,10 @@ class Container(Model):
         Args:
             height (int): Height of tty session
             width (int): Width of tty session
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.resize(self.id, height, width)
 
@@ -241,6 +293,10 @@ class Container(Model):
             timeout (int): Number of seconds to try to stop for before killing
                 the container. Once killed it will then be restarted. Default
                 is 10 seconds.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.restart(self.id, **kwargs)
 
@@ -248,6 +304,10 @@ class Container(Model):
         """
         Start this container. Similar to the ``docker start`` command, but
         doesn't support attach options.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.start(self.id, **kwargs)
 
@@ -261,6 +321,10 @@ class Container(Model):
                 on the fly. False by default.
             stream (bool): If set to false, only the current stats will be
                 returned instead of a stream. True by default.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.stats(self.id, **kwargs)
 
@@ -271,6 +335,10 @@ class Container(Model):
         Args:
             timeout (int): Timeout in seconds to wait for the container to
                 stop before sending a ``SIGKILL``. Default: 10
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.stop(self.id, **kwargs)
 
@@ -283,12 +351,20 @@ class Container(Model):
 
         Returns:
             (str): The output of the top
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.top(self.id, **kwargs)
 
     def unpause(self):
         """
         Unpause all processes within the container.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.unpause(self.id)
 
@@ -312,6 +388,10 @@ class Container(Model):
 
         Returns:
             (dict): Dictionary containing a ``Warnings`` key.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.update_container(self.id, **kwargs)
 
@@ -330,6 +410,8 @@ class Container(Model):
         Raises:
             :py:class:`requests.exceptions.ReadTimeout`
                 If the timeout is exceeded.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self.client.api.wait(self.id, **kwargs)
 
@@ -341,7 +423,7 @@ class ContainerCollection(Collection):
             remove=False, **kwargs):
         """
         Run a container. By default, it will wait for the container to finish
-        and return its logs, similar to ``docker run``
+        and return its logs, similar to ``docker run``.
 
         If the ``detach`` argument is ``True``, it will start the container
         and immediately return a :py:class:`Container` object, similar to
@@ -556,7 +638,7 @@ class ContainerCollection(Collection):
             :py:class:`docker.errors.ImageNotFound`
                 If the specified image does not exist.
             :py:class:`docker.errors.APIError`
-                If there is a server error.
+                If the server returns an error.
         """
         if isinstance(image, Image):
             image = image.id
@@ -603,7 +685,7 @@ class ContainerCollection(Collection):
             :py:class:`docker.errors.ImageNotFound`
                 If the specified image does not exist.
             :py:class:`docker.errors.APIError`
-                If there is a server error.
+                If the server returns an error.
         """
         if isinstance(image, Image):
             image = image.id
@@ -623,6 +705,12 @@ class ContainerCollection(Collection):
 
         Returns:
             A :py:class:`Container` object.
+
+        Raises:
+            :py:class:`docker.errors.NotFound`
+                If the container does not exist.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         resp = self.client.api.inspect_container(container_id)
         return self.prepare_model(resp)
@@ -663,6 +751,10 @@ class ContainerCollection(Collection):
 
         Returns:
             (list of :py:class:`Container`)
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         resp = self.client.api.containers(all=all, before=before,
                                           filters=filters, limit=limit,

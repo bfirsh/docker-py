@@ -3,7 +3,7 @@ Networks
 
 .. py:module:: docker.models.networks
 
-Create and manage networks. For more information about networks, `see the Engine documentation <https://docs.docker.com/engine/userguide/networking/>`_.
+Create and manage networks on the server. For more information about networks, `see the Engine documentation <https://docs.docker.com/engine/userguide/networking/>`_.
 
 Methods available on ``client.networks``:
 

@@ -30,6 +30,10 @@ class ContainerApiMixin(object):
             By default, the container's output as a single string.
 
             If ``stream=True``, an iterator of output strings.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {
             'logs': logs and 1 or 0,
@@ -59,6 +63,10 @@ class ContainerApiMixin(object):
             params (dict): Dictionary of request parameters (e.g. ``stdout``,
                 ``stderr``, ``stream``).
             ws (bool): Use websockets instead of raw HTTP.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if params is None:
             params = {
@@ -101,6 +109,10 @@ class ContainerApiMixin(object):
                 `Remote API documentation
                 <https://docs.docker.com/reference/api/docker_remote_api/>`_
                 for full details.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {
             'container': container,
@@ -156,6 +168,10 @@ class ContainerApiMixin(object):
 
         Returns:
             A list of dicts, one per container
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {
             'limit': 1 if latest else limit,
@@ -192,6 +208,10 @@ class ContainerApiMixin(object):
 
         Returns:
             The contents of the file as a string
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if utils.version_gte(self._version, '1.20'):
             warnings.warn(
@@ -393,6 +413,12 @@ class ContainerApiMixin(object):
 
         Returns:
             A dictionary with an image 'Id' key and a 'Warnings' key.
+
+        Raises:
+            :py:class:`docker.errors.ImageNotFound`
+                If the specified image does not exist.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if isinstance(volumes, six.string_types):
             volumes = [volumes, ]
@@ -625,6 +651,10 @@ class ContainerApiMixin(object):
 
         Returns:
             (str)
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self._result(
             self._get(self._url("/containers/{0}/changes", container)), True
@@ -640,6 +670,10 @@ class ContainerApiMixin(object):
 
         Returns:
             (str): The filesystem tar archive
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         res = self._get(
             self._url("/containers/{0}/export", container), stream=True
@@ -661,6 +695,10 @@ class ContainerApiMixin(object):
         Returns:
             (tuple): First element is a raw tar data stream. Second element is
             a dict containing ``stat`` information on the specified ``path``.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {
             'path': path
@@ -685,6 +723,10 @@ class ContainerApiMixin(object):
         Returns:
             (dict): Similar to the output of `docker inspect`, but as a
             single dict
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         return self._result(
             self._get(self._url("/containers/{0}/json", container)), True
@@ -698,6 +740,10 @@ class ContainerApiMixin(object):
         Args:
             container (str): The container to kill
             signal (str or int): The signal to send. Defaults to ``SIGKILL``
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url("/containers/{0}/kill", container)
         params = {}
@@ -733,6 +779,10 @@ class ContainerApiMixin(object):
 
         Returns:
             (generator or str)
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         if utils.compare_version('1.11', self._version) >= 0:
             if follow is None:
@@ -775,6 +825,10 @@ class ContainerApiMixin(object):
 
         Args:
             container (str): The container to pause
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url('/containers/{0}/pause', container)
         res = self._post(url)
@@ -792,6 +846,10 @@ class ContainerApiMixin(object):
 
         Returns:
             (list of dict): The mapping for the host ports
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
             .. code-block:: bash
@@ -842,6 +900,10 @@ class ContainerApiMixin(object):
             (bool): True if the call succeeds.
 
         Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+
+        Raises:
             :py:class:`~docker.errors.APIError` If an error occurs.
         """
         params = {'path': path}
@@ -862,6 +924,10 @@ class ContainerApiMixin(object):
                 container
             force (bool): Force the removal of a running container (uses
                 ``SIGKILL``)
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {'v': v, 'link': link, 'force': force}
         res = self._delete(
@@ -878,6 +944,10 @@ class ContainerApiMixin(object):
         Args:
             container (str): ID of the container to rename
             name (str): New name for the container
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url("/containers/{0}/rename", container)
         params = {'name': name}
@@ -893,6 +963,10 @@ class ContainerApiMixin(object):
             container (str or dict): The container to resize
             height (int): Height of tty session
             width (int): Width of tty session
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {'h': height, 'w': width}
         url = self._url("/containers/{0}/resize", container)
@@ -910,6 +984,10 @@ class ContainerApiMixin(object):
             timeout (int): Number of seconds to try to stop for before killing
                 the container. Once killed it will then be restarted. Default
                 is 10 seconds.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {'t': timeout}
         url = self._url("/containers/{0}/restart", container)
@@ -933,6 +1011,10 @@ class ContainerApiMixin(object):
 
         Args:
             container (str): The container to start
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
 
         Example:
 
@@ -1015,6 +1097,10 @@ class ContainerApiMixin(object):
             stream (bool): If set to false, only the current stats will be
                 returned instead of a stream. True by default.
 
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+
         """
         url = self._url("/containers/{0}/stats", container)
         if stream:
@@ -1033,6 +1119,10 @@ class ContainerApiMixin(object):
             container (str): The container to stop
             timeout (int): Timeout in seconds to wait for the container to
                 stop before sending a ``SIGKILL``. Default: 10
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         params = {'t': timeout}
         url = self._url("/containers/{0}/stop", container)
@@ -1052,6 +1142,10 @@ class ContainerApiMixin(object):
 
         Returns:
             (str): The output of the top
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         u = self._url("/containers/{0}/top", container)
         params = {}
@@ -1099,6 +1193,10 @@ class ContainerApiMixin(object):
 
         Returns:
             (dict): Dictionary containing a ``Warnings`` key.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url('/containers/{0}/update', container)
         data = {}
@@ -1151,6 +1249,8 @@ class ContainerApiMixin(object):
         Raises:
             :py:class:`requests.exceptions.ReadTimeout`
                 If the timeout is exceeded.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url("/containers/{0}/wait", container)
         res = self._post(url, timeout=timeout)

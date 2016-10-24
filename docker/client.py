@@ -36,13 +36,14 @@ class Client(object):
     @classmethod
     def from_env(cls, **kwargs):
         """
-        Return a client configured with the standard set of Docker environment
-        variables. The environment variables used are:
+        Return a client configured from environment variables.
+
+        The environment variables used are the same as those used by the
+        Docker command-line client. They are:
 
         .. envvar:: DOCKER_HOST
 
             The URL to the Docker host.
-
 
         .. envvar:: DOCKER_TLS_VERIFY
 

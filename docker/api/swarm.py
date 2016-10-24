@@ -36,6 +36,10 @@ class SwarmApiMixin(object):
         Returns:
             ``docker.types.SwarmSpec`` instance.
 
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+
         Example:
 
             >>> spec = client.create_swarm_spec(
@@ -80,7 +84,8 @@ class SwarmApiMixin(object):
             ``True`` if successful.
 
         Raises:
-            `py:class:`docker.errors.APIError`: If not successful.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
 
         url = self._url('/swarm/init')
@@ -103,6 +108,10 @@ class SwarmApiMixin(object):
 
         Returns:
             A dictionary containing data about the swarm.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url('/swarm')
         return self._result(self._get(url), True)
@@ -118,6 +127,10 @@ class SwarmApiMixin(object):
 
         Returns:
             A dictionary containing data about this node.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url('/nodes/{0}', node_id)
         return self._result(self._get(url), True)
@@ -146,6 +159,10 @@ class SwarmApiMixin(object):
 
         Returns:
             ``True`` if the request went through.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         data = {
             "RemoteAddrs": remote_addrs,
@@ -171,8 +188,8 @@ class SwarmApiMixin(object):
             ``True`` if the request went through.
 
         Raises:
-            ``APIError`` On failure.
-
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url('/swarm/leave')
         response = self._post(url, params={'force': force})
@@ -194,6 +211,10 @@ class SwarmApiMixin(object):
 
         Returns:
             A list of dictionaries containing data about each swarm node.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
         url = self._url('/nodes')
         params = {}
@@ -230,7 +251,8 @@ class SwarmApiMixin(object):
             ``True`` if the request went through.
 
         Raises:
-            ``APIError`` On failure.
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
         """
 
         url = self._url('/swarm/update')
