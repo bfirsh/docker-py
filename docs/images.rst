@@ -35,4 +35,5 @@ Image objects
 
   .. automethod:: history
   .. automethod:: reload
+  .. automethod:: save
   .. automethod:: tag

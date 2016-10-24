@@ -44,6 +44,24 @@ class Image(Model):
         """
         return self.client.api.history(self.id)
 
+    def save(self):
+        """
+        Get a tarball of an image. Similar to the ``docker save`` command.
+
+        Returns:
+            (urllib3.response.HTTPResponse object): The response from the
+                daemon
+
+        Example:
+
+            >>> image = cli.get("fedora:latest")
+            >>> resp = image.save()
+            >>> f = open('/tmp/fedora-latest.tar', 'w')
+            >>> f.write(resp.data)
+            >>> f.close()
+        """
+        return self.client.api.get_image(self.id)
+
     def tag(self, repository, tag=None, **kwargs):
         """
         Tag this image into a repository. Similar to the ``docker tag``

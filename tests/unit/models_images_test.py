@@ -89,6 +89,12 @@ class ImageTest(unittest.TestCase):
         image.history()
         client.api.history.assert_called_with(FAKE_IMAGE_ID)
 
+    def test_save(self):
+        client = make_fake_client()
+        image = client.images.get(FAKE_IMAGE_ID)
+        image.save()
+        client.api.get_image.assert_called_with(FAKE_IMAGE_ID)
+
     def test_tag(self):
         client = make_fake_client()
         image = client.images.get(FAKE_IMAGE_ID)
