@@ -92,7 +92,7 @@ class ServiceCollection(Collection):
             args (list of str): Arguments to the command.
             constraints (list of str): Placement constraints.
             container_labels (dict): Labels to apply to the container.
-            endpoint_config (dict): Properties that can be configured to
+            endpoint_spec (dict): Properties that can be configured to
                 access and load balance a service. Default: ``None``.
             env (list of str): Environment variables, in the form
                 ``KEY=val``.
@@ -195,7 +195,7 @@ CREATE_SERVICE_KWARGS = [
     'mode',
     'update_config',
     'networks',
-    'endpoint_config',
+    'endpoint_spec',
 ]
 
 

@@ -12,7 +12,7 @@ class CreateServiceKwargsTest(unittest.TestCase):
             'mode': 'global',
             'update_config': {'update': 'config'},
             'networks': ['somenet'],
-            'endpoint_config': {'blah': 'blah'},
+            'endpoint_spec': {'blah': 'blah'},
             'container_labels': {'containerkey': 'containervalue'},
             'resources': {'foo': 'bar'},
             'restart_policy': {'restart': 'policy'},
@@ -35,7 +35,7 @@ class CreateServiceKwargsTest(unittest.TestCase):
             'mode': 'global',
             'update_config': {'update': 'config'},
             'networks': ['somenet'],
-            'endpoint_config': {'blah': 'blah'},
+            'endpoint_spec': {'blah': 'blah'},
         }
         assert set(task_template.keys()) == set([
             'ContainerSpec', 'Resources', 'RestartPolicy', 'Placement',
