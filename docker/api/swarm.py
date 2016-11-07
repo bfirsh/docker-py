@@ -225,6 +225,34 @@ class SwarmApiMixin(object):
 
     @utils.minimum_version('1.24')
     def update_node(self, node_id, version, node_spec=None):
+        """
+        Update the Node's configuration
+
+        Args:
+
+            version (int): The version number of the node object being
+                updated. This is required to avoid conflicting writes.
+            node_spec (dict): Configuration settings to update. Any values
+                not provided will be removed. Default: ``None``
+
+        Returns:
+            `True` if the request went through.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+
+        Example:
+
+            >>> node_spec = {'Availability': 'active',
+                         'Name': 'node-name',
+                         'Role': 'manager',
+                         'Labels': {'foo': 'bar'}
+                        }
+            >>> client.update_node(node_id='24ifsmvkjbyhk', version=8,
+                node_spec=node_spec)
+
+        """
         url = self._url('/nodes/{0}/update?version={1}', node_id, str(version))
         res = self._post_json(url, data=node_spec)
         self._raise_for_status(res)
