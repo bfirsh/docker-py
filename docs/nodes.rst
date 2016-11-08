@@ -24,4 +24,7 @@ Node objects
 
     The raw representation of this object from the server.
 
+  .. autoattribute:: version
+
   .. automethod:: reload
+  .. automethod:: update

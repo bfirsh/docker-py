@@ -5,6 +5,42 @@ class Node(Model):
     """A node in a swarm."""
     id_attribute = 'ID'
 
+    @property
+    def version(self):
+        """
+        The version number of the service. If this is not the same as the
+        server, the :py:meth:`update` function will not work and you will
+        need to call :py:meth:`reload` before calling it again.
+        """
+        return self.attrs.get('Version').get('Index')
+
+    def update(self, node_spec):
+        """
+        Update the node's configuration.
+
+        Args:
+            node_spec (dict): Configuration settings to update. Any values
+                not provided will be removed. Default: ``None``
+
+        Returns:
+            `True` if the request went through.
+
+        Raises:
+            :py:class:`docker.errors.APIError`
+                If the server returns an error.
+
+        Example:
+
+            >>> node_spec = {'Availability': 'active',
+                             'Name': 'node-name',
+                             'Role': 'manager',
+                             'Labels': {'foo': 'bar'}
+                            }
+            >>> node.update(node_spec)
+
+        """
+        return self.client.api.update_node(self.id, self.version, node_spec)
+
 
 class NodeCollection(Collection):
     """Nodes on the Docker server."""
